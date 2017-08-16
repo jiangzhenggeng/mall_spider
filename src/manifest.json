@@ -1,0 +1,58 @@
+{
+    "manifest_version": 2,
+    "name": "商品爬虫",
+    "version": "1.0",
+    "description": "手动抓取电商商品",
+    "icons": {
+        "16": "images/icon16.png",
+        "48": "images/icon48.png",
+        "128": "images/icon128.png"
+    },
+    "browser_action": {
+        "default_icon": {
+            "16": "images/icon19.png",
+            "19": "images/icon19.png",
+            "38": "images/icon38.png"
+        },
+        "default_title": "已选取商品",
+        "default_popup": "already_select_manage.html?popup"
+    },
+    "options_page": "already_select_manage.html?R",
+    "permissions": [
+        "http://*/",
+        "https://*/",
+        "unlimitedStorage",
+        "notifications",
+        "contextMenus"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.tmall.com/*",
+                "*://*.tmall.hk/*",
+                "*://*.jd.com/*",
+                "*://*.taobao.com/*",
+                "*://*.amazon.cn/*",
+                "*://*.amazon.com/*"
+            ],
+            "js": [
+                "script/libs/jquery-2.2.3.js",
+                "script/extend.js",
+                "script/config/url.config.js",
+                "script/main.js"
+            ],
+            "css":[
+                "style/base.css"
+            ]
+        }
+    ],
+    "background": {
+        "scripts": [
+            "script/libs/jquery-2.2.3.js",
+            "script/extend.js",
+            "script/libs/store.js",
+            "script/background.js"
+        ]
+    },
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+}

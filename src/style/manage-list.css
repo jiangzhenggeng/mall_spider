@@ -1,0 +1,22 @@
+body{
+}
+#app{
+    padding: 0px 20px;
+    box-sizing: border-box;
+    max-width: 1200px;
+    min-width: 780px;
+    margin: auto;
+}
+.fr{
+    float: right;
+}
+.search{
+    margin: 20px auto;
+}
+.title{
+    overflow : hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
