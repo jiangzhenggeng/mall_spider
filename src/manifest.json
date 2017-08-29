@@ -23,8 +23,12 @@
         "https://*/",
         "unlimitedStorage",
         "notifications",
-        "contextMenus"
+        "contextMenus",
+        "tabs",
+        "<all_urls>",
+        "activeTab"
     ],
+    "web_accessible_resources": ["*"],
     "content_scripts": [
         {
             "matches": [
@@ -33,26 +37,34 @@
                 "*://*.jd.com/*",
                 "*://*.taobao.com/*",
                 "*://*.amazon.cn/*",
-                "*://*.amazon.com/*"
+                "*://*.amazon.com/*",
+                "*://*.suning.com/*",
+                "*://*.kaola.com/*",
+                "*://*.yhd.com/*",
+                "*://*.gome.com.cn/*",
+                "*://*.dangdang.com/*",
+                "*://*.gome.com/*",
+                "*://*.163.com/*",
+                "*://*.ujipin.com/*",
+                "*://*.xiji.com/*",
+                "*://*.yougou.com/*"
             ],
             "js": [
+                "script/libs/vue.min.js",
                 "script/libs/jquery-2.2.3.js",
+                "script/libs/jquery.qrcode.min.js",
                 "script/extend.js",
                 "script/config/url.config.js",
                 "script/main.js"
             ],
             "css":[
-                "style/base.css"
+                "style/base.css",
+                "style/model.css"
             ]
         }
     ],
     "background": {
-        "scripts": [
-            "script/libs/jquery-2.2.3.js",
-            "script/extend.js",
-            "script/libs/store.js",
-            "script/background.js"
-        ]
+        "page":"background.html"
     },
     "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }

@@ -1,5 +1,6 @@
 
 
+.my-spider-link-wrap .my-spider-spread-image,
 .my-spider-link-wrap .my-spider-link-next,
 .my-spider-link-wrap .my-spider-loading-huihui-data{
     position: absolute;
@@ -16,18 +17,24 @@
     z-index: 99999999999;
 }
 .my-spider-link-wrap .my-spider-loading-huihui-data{
-    top: 60px;
+    top: 90px;
     background: #4CAF50;
     display: block;
 }
+.my-spider-link-wrap .my-spider-spread-image{
+    top: 60px;
+}
 
+.my-spider-link-wrap:hover .my-spider-spread-image,
 .my-spider-link-wrap:hover .my-spider-link-next{
     display: block;
 }
+.my-spider-link-wrap .my-spider-spread-image.my-spider-link-success,
 .my-spider-link-wrap .my-spider-link-next.my-spider-link-success{
     background: #4CAF50;
     display: block;
 }
+.my-spider-link-wrap .my-spider-spread-image.my-spider-link-error,
 .my-spider-link-wrap .my-spider-link-next.my-spider-link-error{
     background: #F44336;
     display: block;

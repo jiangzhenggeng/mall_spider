@@ -11,7 +11,20 @@ My$.extend({
         return parse_url_result;
     },
     alert:function (msg) {
-        alert(msg);
+        if(chrome && chrome.notifications){
+          chrome.notifications.create(null, {
+            type: 'basic',
+            iconUrl: 'images/message.png',
+            title: '消息',
+            message: msg
+          },id=>{
+            setTimeout(()=>{
+              chrome.notifications.clear(id, function(){});
+            }, 1000);
+          });
+        }else{
+          alert(msg);
+        }
     },
     trim:function(string) {
         return String(string||'').replace(/\s+/g,' ').replace(/^\s+|\s+$/g,'');
@@ -21,7 +34,10 @@ My$.extend({
     },
     extendUrl:function (url){
         return url.substr(0,2)=='//'?'http:'+url:url;
-    }
+    },
+  pluginsPath:(function () {
+        return chrome.extension.getURL('');
+      })()
 });
 
 

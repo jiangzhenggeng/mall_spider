@@ -30,8 +30,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
             result:'ok',
             text:text
         });
-    }else{
-        sendResponse({result:'error'} );
     }
 });
 
