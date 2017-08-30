@@ -22,10 +22,10 @@ function download(message) {
     var image = new Image();
     image.onload = function() {
       var canvas = document.createElement("canvas");
-      canvas.width = o_w_h.w * 2;
-      canvas.height = o_w_h.h * 2;
+      canvas.width = o_w_h.w * window.devicePixelRatio;
+      canvas.height = o_w_h.h * window.devicePixelRatio;
       var context = canvas.getContext("2d");
-      context.drawImage(image,-(o_offset.left-scrollLeft) * 2,-(o_offset.top-scrollTop) * 2 );
+      context.drawImage(image,-(o_offset.left-scrollLeft) * window.devicePixelRatio,-(o_offset.top-scrollTop) * window.devicePixelRatio );
 
       var link = document.createElement('a');
       var time = new Date().getTime();
@@ -69,12 +69,15 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
     $.post('http://zdm.jiguo.com/admin/Product/InsertProductDraft',{
       catch_data:{
         'name':item.title,
-        'cover':item.cover,
+        'detail':item.detail||'',
+        'pic':item.pic||[],
+        'cover':item.cover || item.pic[0],
         'url':item.url,
         'mall':item.mall,
         'shop':item.shop,
         'price':item.price,
         'mark_price':item.mark_price,
+        'discount':item.discount,
       }
     },replayDate=>{
       var list = store.get('data') || [];
@@ -121,6 +124,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
       });
     },'json');
 
+  }else if(message.type=='get-store'){
+    sendResponse({
+      storeData:store.get('data')
+    });
   }
 
 });

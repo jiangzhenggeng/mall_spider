@@ -50,9 +50,10 @@ var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
         </div>
     </div>`;
 
-var id = createId();
+var id = createId()+'009--lpo';
 
 $('body').append('<div id="'+id+'">'+tpl+'</div>');
+
 var app = new Vue({
   el: '#'+id,
   data: {
@@ -67,6 +68,9 @@ var app = new Vue({
   },
   computed:{
     erweima:function () {
+      if(!this.url){
+        return $.pluginsPath+'images/no.png';
+      }
       this.app.qrcode({
         width:"106",
         height:"106",
@@ -143,6 +147,10 @@ var app = new Vue({
     },
     downLoadWindowClose(){
       this.showModal = false;
+      var detail = $('.my-spider-detail');
+      if(detail.length){
+        detail.show();
+      }
     },
     downLoad(){
       //触发截图
@@ -162,6 +170,12 @@ var app = new Vue({
           if(response.result=='ok'){
             this.triggerObj.addClass('my-spider-link-success').html('传播图生成成功');
             this.showModal = false;
+
+            var detail = $('.my-spider-detail');
+            if(detail.length){
+              detail.show();
+            }
+
           }else{
             this.triggerObj.addClass('my-spider-link-error').html('传播图生成失败');
           }
@@ -184,7 +198,7 @@ var app = new Vue({
 
         this.mouse.move_x = this.mouse.start_x - this.mouse.end_x;
         this.mouse.move_y = this.mouse.start_y - this.mouse.end_y;
-        console.log( this.mouse.start_mgt ,-this.mouse.move_y );
+        //console.log( this.mouse.start_mgt ,-this.mouse.move_y );
         this.moveImg.css('top', this.mouse.start_mgt - this.mouse.move_y );
       }
     },
@@ -203,14 +217,20 @@ var app = new Vue({
 (function () {
     var $ = My$;
 
-    var loadHuihui = function (box,url,timesLong) {
+    var loadHuihui = function (box,url,callback) {
+
+      callback = callback || function () {
+
+      };
         //加载慧慧的价格数据
-        var t = '1502792232600';
+        var t = new Date().getTime();
         var callbackName = 'youdaogouwupi'+t;
         //注册回调函数
         window[callbackName] = function (json) {
             box.data('huihui-json',json);
             box.attr('data-huihui-json','ok').find('.my-spider-loading-huihui-data').remove();
+            callback(json);
+          window[callbackName] = null;
         };
         box.append('<span class="my-spider-loading-huihui-data">加载中...</span>');
         $.ajax({
@@ -230,6 +250,7 @@ var app = new Vue({
             error:function () {
                 box.find('.my-spider-loading-huihui-data').remove();
                 box.removeAttr('data-huihui-json');
+                callback(false);
             }
         });
     };
@@ -256,7 +277,7 @@ var app = new Vue({
                 if( box ){
 
                     if( box.attr('data-huihui-json')!='ok'){
-                        loadHuihui(box,url,1);
+                        loadHuihui(box,url);
                     }
                     var pos = box.css('position');
                     if(pos!='fixed' && pos!='relative' && pos!='absolute'){
@@ -340,15 +361,114 @@ var app = new Vue({
         app.url = link_next_data.url;
 
         return new Promise((resolve, reject)=>{
-          app.showModal = true;
           app.showModelSpread(null,link_next_data);
-          app.showModal = true;
           resolve();
         });
 
       });
 
     });
+
+    //详细页面
+
+
+  var __result__ = $.parseUrl(window.location.href),
+      __curr_item__ = {},
+      __huihui_json__ = {};
+
+  loadHuihui($('body'),window.location.href,function (dataSource) {
+    if( dataSource ){
+      __huihui_json__ = dataSource;
+    }
+  });
+
+  URL_CONFIG.forEach(function(item, index){
+    if(item.host.toLocaleLowerCase()==__result__.host.toLocaleLowerCase()){
+      var yicaiji = false;
+      (window.storeData||[]).forEach((_item)=>{
+        if( _item.url == window.location.href ){
+          yicaiji = true;
+        }
+      });
+      __curr_item__ = item;
+      var tpl = `
+        <div class="my-spider-detail">
+            <span class="my-spider-detail-acquisition ${yicaiji?'success':''}">${yicaiji?'已采集':'采集'}</span>
+            <span class="my-spider-detail-generation">生成传播图</span>
+        </div>
+      `;
+      $('body').append( tpl );
+    }
+  });
+
+  $('body').on('click','.my-spider-detail-acquisition',function (e,resolve,reject) {
+    var _this = $(this);
+    var config_item = __curr_item__,
+        huihui_json = __huihui_json__;
+    if( !config_item.getDetailData ){
+      new Error('getDetailData 方法没有定义！');
+      return;
+    }
+    var item_data = config_item.getDetailData( $('body') );
+
+    item_data.logo = config_item.logo;
+    item_data.url = window.location.href;
+
+    if(!item_data.price) item_data.price = huihui_json.today || huihui_json.min;
+    if(!item_data.mark_price) item_data.mark_price = huihui_json.max;
+
+    item_data.price = $.priceFn(item_data.price);
+    item_data.mark_price = $.priceFn(item_data.mark_price);
+
+    item_data.mall = config_item.mall;
+    item_data.shop = config_item.shop;
+    if(item_data.price && item_data.mark_price && item_data.price!=item_data.mark_price && item_data.price<item_data.mark_price){
+      item_data.discount = Number( item_data.price / item_data.mark_price * 10 ).toFixed(1);
+    }
+
+    item_data.pic = item_data.pic.map(function (item) {
+      return $.extendUrl(item);
+    });
+
+    _this.data('already-catch-data',item_data);
+
+    chrome.runtime.sendMessage({
+      type:'get-item-html',
+      data:item_data
+    }, function(response){
+      if(response.result=='ok'){
+        _this.addClass('success').html('已采集');
+        typeof resolve=='function' && resolve();
+      }else{
+        _this.addClass('error').html('采集失败');
+        typeof reject=='function' && reject();
+      }
+    });
+
+  }).on('click','.my-spider-detail-generation',function () {
+
+    var _this = $(this),
+        prev = _this.prev();
+
+    new Promise((resolve)=>{
+      resolve();
+    }).then(()=>{
+      return new Promise((resolve,reject)=>{
+        prev.trigger('click',[resolve,reject]);
+      })
+    }).then(()=>{
+      var link_next_data = prev.data('already-catch-data');
+      //生成传播图
+      app.triggerObj = _this;
+      app.link_next_data = link_next_data;
+      app.url = link_next_data.url;
+      app.showModelSpread(null,link_next_data);
+    }).then(()=>{
+      _this.parent().hide();
+    });
+
+  });
+
 
 })();
 
@@ -368,8 +488,17 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
 
     window.bindMessage && window.bindMessage[message.type] && window.bindMessage[message.type](message.data);
 
+  }else if( message.type=='set-store' ){
+    window.storeData = message.storeData || [];
   }
 
+});
+
+
+chrome.runtime.sendMessage({
+  type:'get-store'
+}, function(response){
+  window.storeData = response.storeData || [];
 });
 
 

@@ -26,7 +26,8 @@
         "contextMenus",
         "tabs",
         "<all_urls>",
-        "activeTab"
+        "activeTab",
+        "storage"
     ],
     "web_accessible_resources": ["*"],
     "content_scripts": [
@@ -53,6 +54,7 @@
                 "script/libs/vue.min.js",
                 "script/libs/jquery-2.2.3.js",
                 "script/libs/jquery.qrcode.min.js",
+                "script/libs/store.js",
                 "script/extend.js",
                 "script/config/url.config.js",
                 "script/main.js"

@@ -39,3 +39,64 @@
     background: #F44336;
     display: block;
 }
+
+
+
+
+.my-spider-detail{
+    position: fixed;
+    background-color: rgb(255, 255, 255);
+    left: 0px;
+    top: 0px;
+    z-index: 2147483647;
+    display: flex;
+    box-shadow: rgba(0, 0, 0, 0.39) 1px 1px 5px 0px;
+    align-items: stretch;
+    flex-direction: column;
+    padding: 20px;
+    text-align: center;
+}
+.my-spider-detail > span{
+    display: block;
+    cursor: pointer;
+    background-color: rgb(244, 67, 54);
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+    border-radius: 3px;
+    padding: 3px 5px;
+}
+.my-spider-detail > span:nth-child(2){
+    margin-top: 10px;
+}
+
+.my-spider-detail-acquisition.success,
+.my-spider-detail-generation.success,
+
+.my-spider-detail-acquisition.my-spider-link-success,
+.my-spider-detail-generation.my-spider-link-success{
+    background: #4CAF50;
+}
+.my-spider-detail-acquisition.error,
+.my-spider-detail-generation.error,
+.my-spider-detail-acquisition.my-spider-link-error,
+.my-spider-detail-generation.my-spider-link-error{
+    background: #F44336;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

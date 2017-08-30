@@ -71,7 +71,7 @@
                         <td>{{ item.mark_price?'¥'+item.mark_price:'' }}</td>
                         <td>{{ item.discount }}</td>
                         <td>
-                            <template v-if="item.pic"><a @click="showPic(item.pic)">查看</a></template>
+                            <template v-if="item.pic"><a @click="showPic(item.id,item)">查看</a></template>
                             <template v-else>无</template>
                         </td>
                         <td>

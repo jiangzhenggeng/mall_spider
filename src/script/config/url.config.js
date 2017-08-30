@@ -41,7 +41,54 @@ var amazon = {
             mark_price:'',
             pic:pic,
         };
+    },
+  getDetailData(){
+    var title = trim(My$('#productTitle').first().text());
+
+    var price = priceFn( My$('#priceblock_dealprice').text() ) || priceFn(My$('#priceblock_saleprice_row').find('#priceblock_saleprice').text()) || priceFn( My$('#olp_feature_div').find('.a-color-price').text() );
+    var mark_price = priceFn(My$('#priceblock_ourprice').text()) || priceFn( My$('#price .a-text-strike').text() ) || priceFn(My$('#price td').eq(1).text());
+
+    var discount = '';
+    if(price && mark_price){
+      discount = (price/mark_price * 10).toFixed(1);
+      if(discount<=0 || discount>=10 )discount = '';
     }
+    var pic = [];
+    My$('#altImages li:not(.aok-hidden) img').each(function () {
+      var p = My$(this).attr('src');
+      if(p.substr(0,2)=='//'){
+        p = 'http:'+p;
+      }
+      p = p.replace(/\.\_(.*?)\_\.jpg$/ig,'.jpg');
+      pic.push(p);
+    });
+
+    var detail = (My$('#productDescription').html()||'').replace(/^\s+|\s+$/g,'');
+    if ( !detail ) {
+      pic.forEach(function (item) {
+        detail += '<img src="'+item+'" />';
+      });
+    }
+
+    return {
+      title:title,
+      price:price,
+      mark_price:mark_price,
+      pic:pic,
+      cover:pic[0],
+      detail:detail,
+      discount:discount,
+      url:window.location.href
+    };
+  }
+}
+
+function trim(string) {
+  return (string||'').replace(/\s+/g,' ').replace(/^\s+|\s+$/g,'');
+}
+
+function priceFn(string) {
+  return (string||'').split('-')[0].replace(/[^\d\.]/g,'');
 }
 
 var URL_CONFIG = [
@@ -73,7 +120,45 @@ var URL_CONFIG = [
                 mark_price:'',
                 pic:pic,
             };
+        },
+      getDetailData:function () {
+
+        var title = trim(My$('.tb-detail-hd').first().find('h1').text());
+        var price = My$('#J_PromoPrice .tm-price').first().text().replace(/[^\d\.]/g,'');
+        var mark_price = My$('#J_StrPriceModBox .tm-price').first().text().replace(/[^\d\.]/g,'');
+
+        var discount = '';
+        if(price && mark_price){
+          discount = (price/mark_price * 10).toFixed(1);
+          if(discount<=0 || discount>=10 )discount = '';
         }
+        var pic = [];
+        My$('#J_UlThumb li img').each(function () {
+          var p = My$(this).attr('src');
+          if(p.substr(0,2)=='//'){
+            p = 'http:'+p;
+          }
+          p = p.replace(/\.jpg_\d+x\d+q\d+\.jpg/ig,'.jpg');
+          pic.push(p);
+        });
+
+        var detail = (My$('#description > .content').first().html()||'').replace(/^\s+|\s+$/g,'');
+        if ( !detail ) {
+          pic.forEach(function (item) {
+            detail += '<img src="'+item+'" />';
+          });
+        }
+        return {
+          url:window.location.href,
+          title:title,
+          price:price,
+          mark_price:mark_price,
+          pic:pic,
+          cover:pic[0],
+          detail:detail,
+          discount:discount
+        };
+      }
     },
     {
         mall:'京东',
@@ -113,7 +198,64 @@ var URL_CONFIG = [
                 mark_price:'',
                 pic:pic,
             };
-        }
+        },
+          getDetailData:function (_self) {
+
+            var title = trim(My$('.sku-name').first().text());
+            var price = My$('.summary-price.J-summary-price .dd .p-price').first().text().replace(/[^\d\.]/g,'');
+            var mark_price = My$('#page_origin_price').text().replace(/[^\d\.]/g,'');
+
+            var discount = '';
+            if(price && mark_price){
+              discount = (price/mark_price * 10).toFixed(1);
+              if(discount<=0 || discount>=10 )discount = '';
+            }
+            var pic = [];
+            My$('#spec-list li img').each(function () {
+              var p = '';
+              if(My$(this).attr('data-url')){
+                p = 'https://img14.360buyimg.com/n0/'+My$(this).attr('data-url');
+              }else{
+                p = My$(this).attr('src');
+                if(p.substr(0,2)=='//'){
+                  p = 'http:'+p;
+                }
+                p = p.replace(/(\/n\d+\/jfs\/|\/n\d+\/[a-z]\d+[a-z]\d+_jfs\/)/ig,'/n0/jfs/').replace(/\/\d+_jfs\//i,'/jfs/');
+              }
+              pic.push(p);
+            });
+
+            var descObj = My$('#J-detail-content');
+            descObj.find('div').each(function () {
+              var img_src = ($(this).css('background-image')||'').replace(/\s+/g,'').replace(/^url\(("|'|)|("|'|)\)$/gi,'');
+              img_src && $(this).append('<img src="'+img_src+'" />');
+            });
+            descObj.find('img[data-lazyload]').each(function () {
+              var src = My$(this).attr('data-lazyload');
+              if(src.substr(0,2)=='//') src = 'http:'+src;
+              My$(this).attr('src',src).removeAttr('class').removeAttr('alt').removeAttr('data-lazyload').removeAttr('id');
+            });
+            descObj.find('[style]').removeAttr('style');
+            var detail = (descObj.html()||'').replace(/^\s+|\s+$/g,'');
+
+            if ( !detail ) {
+              pic.forEach(function (item) {
+                detail += '<img src="'+item+'" />';
+              });
+            }
+            return {
+              url: window.location.href ,
+              title:title,
+              price:price,
+              mark_price:mark_price,
+              pic:pic,
+              cover:pic[0],
+              detail:detail,
+              discount:discount
+            };
+
+
+          }
     },
     {
         mall:'淘宝',
@@ -142,7 +284,52 @@ var URL_CONFIG = [
                 mark_price:'',
                 pic:pic,
             };
+        },
+      getDetailData(){
+        var title = trim(My$('#J_Title h3.tb-main-title').first().text());
+        var price = My$('#J_PromoPriceNum').text().replace(/[^\d\.]/g,'');
+        var mark_price = My$('#J_StrPriceModBox .tb-rmb-num').first().text().replace(/[^\d\.]/g,'');
+
+        var discount = '';
+        if(price && mark_price){
+          discount = (price/mark_price * 10).toFixed(1);
+          if(discount<=0 || discount>=10 )discount = '';
         }
+        if(!price){
+          price = mark_price;
+          mark_price = '';
+        }
+        var pic = [];
+        My$('#J_UlThumb li img').each(function () {
+          var p = My$(this).attr('src');
+          if(p.substr(0,2)=='//'){
+            p = 'http:'+p;
+          }
+          p = p.replace(/\.jpg_\d+x\d+(q\d+|)\.jpg/ig,'.jpg');
+          pic.push(p);
+        });
+
+        var o = My$('#description > .content').first(),
+            o_img = o.find('img[data-ks-lazyload]');
+        o_img.attr('src',o_img.attr('data-ks-lazyload') );
+        var detail = (o.html()||'').replace(/^\s+|\s+$/g,'');
+        if ( !detail ) {
+          pic.forEach(function (item) {
+            detail += '<img src="'+item+'" />';
+          });
+        }
+
+        return {
+          url:window.location.href,
+          title:title,
+          price:price,
+          mark_price:mark_price,
+          pic:pic,
+          cover:pic[0],
+          detail:detail,
+          discount:discount
+        };
+      }
     },
     {
         mall:'苏宁',
@@ -171,7 +358,67 @@ var URL_CONFIG = [
                 mark_price:'',
                 pic:pic,
             };
+        },
+      getDetailData(){
+        var title = trim(My$('#partNameId').text()||My$('#itemDisplayName').text() );
+        var price = '',
+            mark_price = '';
+
+        if(My$('#priceDom').length){
+          price = priceFn(My$('#priceDom .mainprice').text() );
+          mark_price = priceFn(My$('#priceDom del.small-price').text() );
+        }else if(My$('#commPriceId').length){
+          price = priceFn(My$('#commPriceId .sale-price').text() );
+          mark_price = priceFn(My$('#commPriceId .original-price').text() );
         }
+
+        var discount = '';
+        if(price && mark_price){
+          discount = (price/mark_price * 10).toFixed(1);
+          if(discount<=0 || discount>=10 )discount = '';
+        }
+        var pic = [];
+        var detail = '';
+        if(My$('#bannerImgUrlId').length){
+          My$('#bannerImgUrlId').find('li img').each(function () {
+            var p = My$(this).attr('src');
+            if(p.substr(0,2)=='//'){
+              p = 'http:'+p;
+            }
+            pic.push(p);
+          });
+          My$('#J_prodesc table').remove();
+          detail = (My$('#J_prodesc').html()||'').replace(/^\s+|\s+$/g,'');
+        }else{
+          My$('.imgzoom-thumb-main').find('li img').each(function () {
+            var p = My$(this).attr('src-large') || My$(this).attr('src');
+            if(p.substr(0,2)=='//'){
+              p = 'http:'+p;
+            }
+            pic.push(p);
+          });
+          var descBox = My$('#productDetail').find('[moduleid=R1901001_3][modulename]');
+          descBox.find('img').removeAttr('onload').removeAttr('class').removeAttr('height').removeAttr('width');
+          detail = (descBox.html()||'').replace(/^\s+|\s+$/g,'');
+        }
+
+        if ( !detail ) {
+          pic.forEach(function (item) {
+            detail += '<img src="'+item+'" />';
+          });
+        }
+
+        return {
+          url:window.location.href,
+          title:title,
+          price:price,
+          mark_price:mark_price,
+          pic:pic,
+          cover:pic[0],
+          detail:detail,
+          discount:discount
+        };
+      }
     },
     {
         mall:'网易考拉',
@@ -200,7 +447,46 @@ var URL_CONFIG = [
                 mark_price:$(_self).find('.price .marketprice').text(),
                 pic:pic,
             };
+        },
+      getDetailData(){
+        var title = trim(My$('.product-title').first().text() );
+
+        var price = priceFn(My$('.m-price-wrap .m-price-cnt .currentPrice').text() );
+        var mark_price = priceFn(My$('.m-price-wrap .m-price-cnt .marketPrice').text() );
+
+        var discount = '';
+        if(price && mark_price){
+          discount = (price/mark_price * 10).toFixed(1);
+          if(discount<=0 || discount>=10 )discount = '';
         }
+        var pic = [];
+        My$('#litimgUl').find('li img').each(function () {
+          var p = My$(this).attr('src');
+          if(p.substr(0,2)=='//'){
+            p = 'http:'+p;
+          }
+          p = p.split('&thumbnail')[0];
+          pic.push(p);
+        });
+
+        var detail = (My$('#textareabox').html()||'').replace(/^\s+|\s+$/g,'');
+        if ( !detail ) {
+          pic.forEach(function (item) {
+            detail += '<img src="'+item+'" />';
+          });
+        }
+
+        return {
+          title:title,
+          price:price ,
+          mark_price:mark_price ,
+          pic:pic,
+          cover:pic[0],
+          detail:detail,
+          discount:discount,
+          url:window.location.href
+        };
+      }
     },
     {
         mall:'1号店',
@@ -229,7 +515,45 @@ var URL_CONFIG = [
                 mark_price:'',
                 pic:pic,
             };
+        },
+      getDetailData(){
+        var title = trim( My$('.unit_tit h1').text()||My$('#productMainName').text() );
+
+        var price = priceFn( My$('#pricenow').text()||My$('#current_price').text() );
+        var mark_price = priceFn( My$('#marketPrice').text()||My$('#current_price_del').text() );
+
+        var discount = '';
+        if(price && mark_price){
+          discount = (price/mark_price * 10).toFixed(1);
+          if(discount<=0 || discount>=10 )discount = '';
         }
+        var pic = [];
+        My$('#jsproCrumb .mBox').eq(0).find('img').each(function () {
+          var p = My$(this).attr('src');
+          if(p.substr(0,2)=='//'){
+            p = 'http:'+p;
+          }
+          pic.push(p);
+        });
+
+        var detail = My$('.desbox').html();
+        if ( !detail ) {
+          pic.forEach(function (item) {
+            detail += '<img src="'+item+'" />';
+          });
+        }
+
+        return {
+          title:title,
+          price:price,
+          mark_price:mark_price,
+          pic:pic,
+          cover:pic[0],
+          detail:detail,
+          discount:discount,
+          url:window.location.href
+        };
+      }
     },
     {
         mall:'国美',
@@ -258,7 +582,57 @@ var URL_CONFIG = [
                 mark_price:'',
                 pic:pic,
             };
+        },
+      getDetailData(){
+        var title = trim(My$('.hgroup > h1').first().text() || My$('.grdsd-tit').first().text());
+
+        var price = '';
+        if(My$('#salePrice').text()){
+          price = priceFn( My$('#salePrice').text() );
+        }else if(My$('#tuan_prom').css('display')!='none' ){
+          price = priceFn( My$('#tuan_prom .h1_red_price').text() );
+        }else if( My$('#prdPrice').text() ){
+          price = priceFn( My$('#prdPrice').text() );
         }
+
+        var mark_price = priceFn(My$('#prdPrice').text() );
+
+        var discount = '';
+        if(price && mark_price){
+          discount = (price/mark_price * 10).toFixed(1);
+          if(discount<=0 || discount>=10 )discount = '';
+        }
+        var pic = [];
+        My$('.pic-small').find('li img').each(function () {
+          var p = My$(this).attr('rpic') || My$(this).attr('bpic') || My$(this).attr('src');
+          if(p.substr(0,2)=='//'){
+            p = 'http:'+p;
+          }
+          pic.push(p);
+        });
+
+        var descObj = My$('#productDesc');
+        descObj.find('img[gome-src]').each(function () {
+          My$(this).attr('src',My$(this).attr('gome-src') );
+        });
+        var detail = (descObj.html()||'').replace(/^\s+|\s+$/g,'');
+        if ( !detail ) {
+          pic.forEach(function (item) {
+            detail += '<img src="'+item+'" />';
+          });
+        }
+
+        return {
+          title:title,
+          price:price ,
+          mark_price:mark_price,
+          pic:pic,
+          cover:pic[0],
+          detail:detail,
+          discount:discount,
+          url:window.location.href
+        };
+      }
     },
     {
         mall:'当当',
@@ -287,7 +661,46 @@ var URL_CONFIG = [
                 mark_price:'',
                 pic:pic,
             };
+        },
+      getDetailData(){
+        var title = trim(My$('.name_info > h1').first().text() || My$('.head[name="Title_pub"] > h1').first().text());
+
+        var price = priceFn(My$('#dd-price').text()) || priceFn(My$('#d_price').text());
+        var mark_price = priceFn(My$('#original-price').text()) || priceFn(My$('#d_price').next('span').text() ||  priceFn(My$('.pricestock_pub p>i.m_price').text()) );
+
+        var discount = '';
+        if(price && mark_price){
+          discount = (price/mark_price * 10).toFixed(1);
+          if(discount<=0 || discount>=10 )discount = '';
         }
+        var pic = [];
+        My$('#mainimg_pic,#main-img-slider').find('li img').each(function () {
+          var p = My$(this).attr('src');
+          if(p.substr(0,2)=='//'){
+            p = 'http:'+p;
+          }
+          p = p.replace(/([\d+])\-([\d])\_[a-z]\_([\d])\.jpg$/ig,'$1-$2_u_$3.jpg');
+          pic.push(p);
+        });
+
+        var detail = (My$('#abstract_all').html()||'').replace(/^\s+|\s+$/g,'');
+        if ( !detail ) {
+          pic.forEach(function (item) {
+            detail += '<img src="'+item+'" />';
+          });
+        }
+
+        return {
+          title:title,
+          price:price,
+          mark_price:mark_price,
+          pic:pic,
+          cover:pic[0],
+          detail:detail,
+          discount:discount,
+          url:window.location.href
+        };
+      }
     },
     {
         mall:'网易严选',
@@ -316,7 +729,52 @@ var URL_CONFIG = [
                 mark_price:'',
                 pic:pic,
             };
+        },
+      getDetailData(){
+        var title = trim(My$('.intro').first().find('.name').text() );
+
+        var price = priceFn(My$('.price .pBox .rp .num').text() );
+        var mark_price = priceFn( My$('.price .pBox .op s').eq(0).text() );
+
+        var discount = '';
+        if(price && mark_price){
+          discount = (price/mark_price * 10).toFixed(1);
+          if(discount<=0 || discount>=10 )discount = '';
         }
+        var pic = [];
+        My$('.m-slide .list').find('li img').each(function () {
+          var p = My$(this).attr('src');
+          if(p.substr(0,2)=='//'){
+            p = 'http:'+p;
+          }
+          p = p.split('&thumbnail')[0];
+          pic.push(p);
+        });
+        var descObj = My$('.m-detailHtml');
+        descObj.find('ul.m-attrList').remove();
+        descObj.find('img[data-original]').each(function () {
+          var src = My$(this).attr('data-original');
+          if(src.substr(0,2)=='//') src = 'http:'+src;
+          My$(this).attr('src',src);
+        });
+        var detail = (descObj.html()||'').replace(/^\s+|\s+$/g,'');
+        if ( !detail ) {
+          pic.forEach(function (item) {
+            detail += '<img src="'+item+'" />';
+          });
+        }
+
+        return {
+          title:title,
+          price:price ,
+          mark_price:mark_price ,
+          pic:pic,
+          cover:pic[0],
+          detail:detail,
+          discount:discount,
+          url:window.location.href
+        };
+      }
     },
     {
         mall:'优集品',
@@ -345,7 +803,72 @@ var URL_CONFIG = [
                 mark_price:$(_self).find('.goods_price .market_price').text(),
                 pic:pic,
             };
+        },
+      getDetailData(){
+        var discount = '',detail = '',price = '',mark_price = '';
+        var _input_val_ = My$('#goods_data-input').val();
+        if( _input_val_ ){
+          var _input_val_json_ = JSON.parse(_input_val_);
+
+          price = _input_val_json_.goods_price || '';
+          mark_price = _input_val_json_.market_price || '';
+          if(price && mark_price){
+            discount = (price/mark_price * 10).toFixed(1);
+            if(discount<=0 || discount>=10 )discount = '';
+          }
+          var _detail_ = _input_val_json_.story.slices;
+          My$.each(_detail_,function (index,item) {
+            detail += '<p>'+item.content + '</p>' + '<p><img src="'+item.image+'" /></p>';
+          });
+          return {
+            brand:_input_val_json_.brand.name,
+            title:_input_val_json_.goods_name,
+            price:price,
+            mark_price:mark_price,
+            url:window.location.href,
+            pic:_input_val_json_.splash,
+            cover:_input_val_json_.splash[0],
+            detail:detail,
+            discount:discount
+          };
+        }else{
+          var title = trim( My$('.good-right .title').text());
+
+          price = priceFn( My$('#goods_price').text() );
+          mark_price = priceFn( My$('.market_value').parent().text() );
+
+          if(price && mark_price){
+            discount = (price/mark_price * 10).toFixed(1);
+            if(discount<=0 || discount>=10 )discount = '';
+          }
+          var pic = [];
+          My$('#thumblist').find('li img').each(function () {
+            var p = My$(this).attr('src');
+            if(p.substr(0,2)=='//'){
+              p = 'http:'+p;
+            }
+            pic.push(p);
+          });
+
+          detail = (My$('.detial_show').html()||'').replace(/^\s+|\s+$/g,'');
+          if ( !detail ) {
+            pic.forEach(function (item) {
+              detail += '<img src="'+item+'" />';
+            });
+          }
         }
+
+        return {
+          title:title,
+          price:price ,
+          mark_price:mark_price ,
+          pic:pic,
+          cover:pic[0],
+          detail:detail,
+          discount:discount,
+          url:window.location.href
+        };
+      }
     },
     {
         mall:'西集网',
@@ -374,7 +897,45 @@ var URL_CONFIG = [
                 mark_price:$(_self).find('.goods-price del.price').text(),
                 pic:pic,
             };
+        },
+      getDetailData(){
+        var title = trim( My$('.product-titles-inner h1').text());
+
+        var price = priceFn( My$('.action-price').text() );
+        var mark_price = priceFn( My$('.action-mktprice').text() );
+
+        var discount = '';
+        if(price && mark_price){
+          discount = (price/mark_price * 10).toFixed(1);
+          if(discount<=0 || discount>=10 )discount = '';
         }
+        var pic = [];
+        My$('#product_album .thumbnail-list').eq(0).find('li img').each(function () {
+          var p = My$(this).attr('src');
+          if(p.substr(0,2)=='//'){
+            p = 'http:'+p;
+          }
+          pic.push(p);
+        });
+
+        var detail = (My$('.detail-content').html()||'').replace(/^\s+|\s+$/g,'');
+        if ( !detail ) {
+          pic.forEach(function (item) {
+            detail += '<img src="'+item+'" />';
+          });
+        }
+
+        return {
+          title:title,
+          price:price ,
+          mark_price:mark_price ,
+          pic:pic,
+          cover:pic[0],
+          detail:detail,
+          discount:discount,
+          url:window.location.href
+        };
+      }
     },
     {
         mall:'优购',
@@ -403,7 +964,46 @@ var URL_CONFIG = [
                 mark_price:$(_self).find('.price_sc del').text(),
                 pic:pic,
             };
+        },
+      getDetailData(){
+        var title = trim(My$('.goodsCon').first().find('h1').text() );
+
+        var price = priceFn(My$('#yitianPrice').text() );
+        var mark_price = priceFn(My$('#ygprice_area del').eq(0).text() );
+
+        var discount = '';
+        if(price && mark_price){
+          discount = (price/mark_price * 10).toFixed(1);
+          if(discount<=0 || discount>=10 )discount = '';
         }
+        var pic = [];
+        My$('#spec-list').find('li img').each(function () {
+          var p = My$(this).attr('piclargeurl') || My$(this).attr('picbigurl') || My$(this).attr('src');
+          if(p.substr(0,2)=='//'){
+            p = 'http:'+p;
+          }
+          p = p.replace(/(\d+_\d+_)[a-z]\.jpg/,'$1l.jpg');
+          pic.push(p);
+        });
+
+        var detail = (My$('#contentDetail').html()||'').replace(/^\s+|\s+$/g,'');
+        if ( !detail ) {
+          pic.forEach(function (item) {
+            detail += '<img src="'+item+'" />';
+          });
+        }
+
+        return {
+          title:title,
+          price:price ,
+          mark_price:mark_price ,
+          pic:pic,
+          cover:pic[0],
+          detail:detail,
+          discount:discount,
+          url:window.location.href
+        };
+      }
     },
     {
         mall: '亚马逊中国',
@@ -412,6 +1012,7 @@ var URL_CONFIG = [
       logo:'http://cdn.jiguo.com/zdm/asset/mall/amazon.jpg',
         hasInsertDom: amazon.hasInsertDom,
         getItemData: amazon.getItemData,
+      getDetailData: amazon.getDetailData,
     },
     {
         mall: '亚马逊美国',
@@ -420,6 +1021,7 @@ var URL_CONFIG = [
       logo:'http://cdn.jiguo.com/zdm/asset/mall/amazon.jpg',
         hasInsertDom: amazon.hasInsertDom,
         getItemData: amazon.getItemData,
+      getDetailData: amazon.getDetailData,
     }
 ];
 

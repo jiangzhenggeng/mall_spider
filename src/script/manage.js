@@ -74,6 +74,7 @@ var app = new Vue({
       },
       list:function () {
         //搜索
+
         var data = store.get('data')||[];
         this.list_len;
         data = data.filter( item => {
@@ -99,6 +100,11 @@ var app = new Vue({
           }
           r = isNaN(r)?( a[sort_key]?-1:( b[sort_key]?1:-1 ) ):r;
           return r;
+        });
+
+        sendMessageToContentScript && sendMessageToContentScript({
+          type:'set-store',
+          storeData:store.get('data')
         });
       }
   },
@@ -141,15 +147,18 @@ var app = new Vue({
         },
         //点击抓取按钮
         toCatch:function (id,item) {
-          $.get('http://zdm.jiguo.com/admin/Product/InsertProductDraft',{
+          $.post('http://zdm.jiguo.com/admin/Product/InsertProductDraft',{
             catch_data:{
               'name':item.title,
+              'detail':item.detail||'',
+              'pic':item.pic||[],
               'cover':item.cover || item.pic[0],
               'url':item.url,
               'mall':item.mall,
               'shop':item.shop,
               'price':item.price,
               'mark_price':item.mark_price,
+              'discount':item.discount,
             }
           },replayDate=>{
             if(replayDate.resultCode==0 || replayDate.resultCode==-2){
@@ -171,8 +180,8 @@ var app = new Vue({
           },'json');
 
         },
-        showPic:function (pic) {
-            this.pic = pic;
+        showPic:function (id,item) {
+            this.pic = item.pic;
             this.pic.length && setTimeout(function () {
                 var o = $('#dowebok');
                 new Viewer(o.get(0));
@@ -257,10 +266,10 @@ var app = new Vue({
           var image = new Image();
           image.onload = function() {
             var canvas = document.createElement("canvas");
-            canvas.width = o_w_h.w * 2;
-            canvas.height = o_w_h.h * 2;
+            canvas.width = o_w_h.w * window.devicePixelRatio;
+            canvas.height = o_w_h.h * window.devicePixelRatio;
             var context = canvas.getContext("2d");
-            context.drawImage(image,-(o_offset.left-$(window).scrollLeft()) * 2,-(o_offset.top-$(window).scrollTop()) * 2 );
+            context.drawImage(image,-(o_offset.left-$(window).scrollLeft()) * window.devicePixelRatio,-(o_offset.top-$(window).scrollTop()) * window.devicePixelRatio );
 
             var link = document.createElement('a');
             var time = new Date().getTime();
@@ -300,7 +309,7 @@ var app = new Vue({
 
           this.mouse.move_x = this.mouse.start_x - this.mouse.end_x;
           this.mouse.move_y = this.mouse.start_y - this.mouse.end_y;
-          console.log( this.mouse.start_mgt ,-this.mouse.move_y );
+          //console.log( this.mouse.start_mgt ,-this.mouse.move_y );
           this.moveImg.css('top', this.mouse.start_mgt - this.mouse.move_y );
         }
       },
