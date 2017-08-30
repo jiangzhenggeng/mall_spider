@@ -219,9 +219,7 @@ var app = new Vue({
 
     var loadHuihui = function (box,url,callback) {
 
-      callback = callback || function () {
-
-      };
+      callback = callback || function () {};
         //加载慧慧的价格数据
         var t = new Date().getTime();
         var callbackName = 'youdaogouwupi'+t;
@@ -248,9 +246,7 @@ var app = new Vue({
                 eval(replatData);
             },
             error:function () {
-                box.find('.my-spider-loading-huihui-data').remove();
-                box.removeAttr('data-huihui-json');
-                callback(false);
+              window[callbackName]({});
             }
         });
     };
@@ -268,9 +264,10 @@ var app = new Vue({
         var result = $.parseUrl(url);
         if(!result.host) return;
         var _this = $(this), box = null;
+      result.host = result.host.toLocaleLowerCase();
 
         URL_CONFIG.forEach(function(item, index){
-            if(item.host.toLocaleLowerCase()==result.host.toLocaleLowerCase()){
+            if( $.inArray(result.host,$.isArray(item.host)?item.host:[item.host])>-1 ){
                 box = item.hasInsertDom(_this);
                 _this.data('already-wrap-box',box);
 
@@ -383,7 +380,7 @@ var app = new Vue({
   });
 
   URL_CONFIG.forEach(function(item, index){
-    if(item.host.toLocaleLowerCase()==__result__.host.toLocaleLowerCase()){
+    if( $.inArray(__result__.host,$.isArray(item.host)?item.host:[item.host])>-1 ){
       var yicaiji = false;
       (window.storeData||[]).forEach((_item)=>{
         if( _item.url == window.location.href ){

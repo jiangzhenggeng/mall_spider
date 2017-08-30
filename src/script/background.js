@@ -34,13 +34,20 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
                 item.mark_price = message.data.mark_price;
               }
 
+              item.updatetime = new Date().getTime();
 
             }
             if(!item.id) item.id = createId();
+
+
+          if(!item.addtime) item.addtime = new Date().getTime();
+          if(!item.updatetime) item.updatetime = new Date().getTime();
+
             return item;
         });
         var text = '';
         if( !hasArray && message.data.url && message.data.title ){
+          message.data.updatetime = message.data.addtime = new Date().getTime();
             data.unshift(message.data);
             text = '添加成功';
         }else{

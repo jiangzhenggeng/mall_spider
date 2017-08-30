@@ -63,6 +63,10 @@ var app = new Vue({
     },
   computed:{
       erweima:function () {
+        if(!this.url){
+          return $.pluginsPath+'images/no.png';
+        }
+
         this.app.qrcode({
           width:"106",
           height:"106",
@@ -147,7 +151,7 @@ var app = new Vue({
         },
         //点击抓取按钮
         toCatch:function (id,item) {
-          $.post('http://zdm.jiguo.com/admin/Product/InsertProductDraft',{
+          var r = $.post('http://zdm.jiguo.com/admin/Product/InsertProductDraft',{
             catch_data:{
               'name':item.title,
               'detail':item.detail||'',
@@ -179,6 +183,10 @@ var app = new Vue({
             }
           },'json');
 
+          r.fail(function () {
+            $.alert('请先登录后台',3000);
+          });
+
         },
         showPic:function (id,item) {
             this.pic = item.pic;
@@ -205,19 +213,20 @@ var app = new Vue({
           }
           this.url = this.spread.url;
 
-          var promise = new Promise((resolve, reject)=>{
+          var promise = new Promise((resolve)=>{
             $.get('http://zdm.jiguo.com/admin/index/setcps',{
               url:this.url
             },replayDate=>{
               if(this.url==replayDate || !replayDate){
                 this.noCps = 'no-cps';
-                reject(replayDate);
+                resolve(replayDate);
               }else{
                 this.noCps = 'ok-cps';
                 this.url = replayDate;
                 resolve(replayDate);
               }
             });
+
           }).then( _ =>{
             return new Promise((resolve, reject)=>{
               var pic = {
@@ -240,6 +249,7 @@ var app = new Vue({
                 }
                 resolve();
               },'json');
+
             });
           });
 
@@ -321,6 +331,12 @@ var app = new Vue({
       mouseout(e){
         this.mouseup(e);
       }
+    },
+  filters:{
+    filterTime(addtime){
+      var t = new Date(addtime);
+      return t.getFullYear().toString().substr(2) + '-'+ (t.getMonth() + 1) + '-' + t.getDate() + ' ' + t.getHours() + ':' + t.getMinutes()
     }
+  }
 });
 

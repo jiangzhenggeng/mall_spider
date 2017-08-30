@@ -109,7 +109,7 @@ var URL_CONFIG = [
             $(_self).find('.ks-switchable-content').find('img').each(function () {
                 var p = $(this).attr('src');
                 if(p){
-                    p = p.replace(/\.jpg_\d+x\d+(q\d+|)\.jpg/ig,'.jpg');
+                    p = p.replace(/\.([a-z\d]{3})_\d+x\d+(q\d+|)\.jpg/ig,'.\$1');
                     pic.push( p );
                 }
             });
@@ -138,7 +138,7 @@ var URL_CONFIG = [
           if(p.substr(0,2)=='//'){
             p = 'http:'+p;
           }
-          p = p.replace(/\.jpg_\d+x\d+q\d+\.jpg/ig,'.jpg');
+          p = p.replace(/\.([a-z\d]{3})_\d+x\d+q\d+\.jpg/ig,'.\$1');
           pic.push(p);
         });
 
@@ -260,8 +260,8 @@ var URL_CONFIG = [
     {
         mall:'淘宝',
         shop:'taobao',
-        host:'item.taobao.com',
-      logo:'http://s1.jiguo.com/8f4a3247-da08-4142-87a8-19eb29917716',
+        host:['item.taobao.com','detail.tmall.com'],
+      logo:$.pluginsPath + 'images/logo/taobao.png',
         hasInsertDom:function (_self) {
             var p_obj = $(_self).closest('div.item');
             if( p_obj.length ){

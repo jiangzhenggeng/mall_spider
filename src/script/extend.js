@@ -10,7 +10,7 @@ My$.extend({
         });
         return parse_url_result;
     },
-    alert:function (msg) {
+    alert:function (msg,time) {
         if(chrome && chrome.notifications){
           chrome.notifications.create(null, {
             type: 'basic',
@@ -20,7 +20,7 @@ My$.extend({
           },id=>{
             setTimeout(()=>{
               chrome.notifications.clear(id, function(){});
-            }, 1000);
+            }, time || 1000);
           });
         }else{
           alert(msg);
@@ -39,6 +39,8 @@ My$.extend({
         return chrome.extension.getURL('');
       })()
 });
+
+
 
 
 

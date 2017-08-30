@@ -52,6 +52,7 @@
                         <th width="10%">原价</th>
                         <th width="10%" @click="sortDiscount" class="pointer">折扣<span class="arrow" :class="{asc:sort_discount_type_acs,dsc:!sort_discount_type_acs}"></span></th>
                         <th width="10%">图片</th>
+                        <th width="10%">时间</th>
                         <th width="15%" align="center">操作</th>
                     </tr>
                 </thead>
@@ -74,6 +75,7 @@
                             <template v-if="item.pic"><a @click="showPic(item.id,item)">查看</a></template>
                             <template v-else>无</template>
                         </td>
+                        <td>{{ item.addtime | filterTime }}</td>
                         <td>
                             <a @click="deleteItem(item.id,item)">删除</a> |
                             <template v-if="item.included">
