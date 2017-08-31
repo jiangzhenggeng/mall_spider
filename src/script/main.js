@@ -10,9 +10,9 @@ var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
         <div ref="spread-download" class="spread">
             <div class="spread-header" contenteditable="true">每日大牌折扣</div>
             <div class="spread-body">
-                <div class="spread-flage" v-if="spread.discount">
+                <div class="spread-flage" v-if="discount>0 && discount<10">
                     <img src="${My$.pluginsPath}images/i-discount.png">
-                    <div class="spread-discount">{{ spread.discount }}折</div>
+                    <div class="spread-discount">{{ discount }}折</div>
                 </div>
                 <img :src="spread.cover"
                     @mousedown.stop.prevent="mousedown"
@@ -23,8 +23,8 @@ var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
                 />
             </div>
             <div class="spread-desc">
-                <div class="spread-tedian">
-                    <span class="spread-red" contenteditable="true">产品特点：</span><span contenteditable="true">{{ spread.desc?spread.desc:spread.title }}</span>
+                <div class="spread-tedian" contenteditable="true">
+                    <span class="spread-red">产品特点：</span><span>{{ spread.desc?spread.desc:(spread.title?spread.title:'填写商品特点') }}</span>
                 </div>
                 <div class="spread-erweima">
                     <div class="spread-bottom-left">
@@ -32,10 +32,10 @@ var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
                         <div contenteditable="true">长按二维码立即下单</div>
                     </div>
                     <div class="spread-bottom-right">
-                        <div class="spread-title" contenteditable="true">{{ spread.title }}</div>
+                        <div class="spread-title" contenteditable="true">{{ spread.title?spread.title:'填写商品' }}</div>
                         <div class="spread-price">
-                            <span class="spread-red" contenteditable="true"><template v-if="spread.price">现价:{{ spread.price }}元</template></span>
-                            <span class="spread-gray" contenteditable="true"><template v-if="spread.mark_price">原价:{{ spread.mark_price }}元</template></span>
+                            <span class="spread-red">现价:<span contenteditable="true" @keyup="keyup('price',$event)">{{ spread.price }}</span>元</span>
+                            <span class="spread-gray">原价:<span contenteditable="true" @keyup="keyup('mark_price',$event)">{{ spread.mark_price }}</span>元</span>
                         </div>
                         <div class="spread-logo">
                             <img :src="spread.logo">
@@ -44,9 +44,18 @@ var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
                 </div>
             </div>
         </div>
-        <div>
+        <div style="width: 110px;text-align: center">
           <div @click="downLoad" class="spread-download-png">下载</div>
           <div @click="downLoadWindowClose" class="spread-download-png spread-download-close">关闭</div>
+          <div class="spread-download-png model-spread-cover-wrap">
+          图片
+            <input id="model-spread-cover" @change="coverChange($event)" type="file" name="cover" class="model-spread-cover" accept="image/jpg,image/jpeg,image/png,image/gif">
+          </div>
+          <div style="margin-top: 20px">
+            <span v-if="noCps=='check'" class="spread-green spread-cps">CPS正在检查中...</span>
+            <span v-else-if="noCps=='no-cps'" class="spread-red spread-cps">没有CPS链接</span>
+            <span class="spread-green spread-cps" v-else="noCps=='ok-cps'">有CPS链接</span>
+           </div>
         </div>
     </div>`;
 
@@ -79,22 +88,43 @@ var app = new Vue({
       var imgData = this.app.find('canvas')[0].toDataURL("image/png",1);
       this.app.find('canvas').remove();
       return imgData;
+    },
+    discount:function () {
+      if( this.spread.mark_price && this.spread.price ){
+        this.spread.discount = Number(this.spread.price / this.spread.mark_price * 10).toFixed(1);
+      }else {
+        this.spread.discount = 0;
+      }
+      return this.spread.discount;
     }
   },
   methods:{
+    coverChange:function () {
+      var reader = new FileReader();
+      var _this = this;
+      reader.onload = function(e) {
+        _this.spread.cover = e.target.result;
+        _this.spread = {
+          ..._this.spread
+        };
+      };
+      reader.readAsDataURL( document.getElementById('model-spread-cover').files[0] );
+    },
+    keyup:function (name,e) {
+      this.timer && clearTimeout(this.timer);
+
+      this.timer = setTimeout(()=>{
+        this.spread[name] = $(e.srcElement).text();
+        this.spread = {
+          ...this.spread
+        };
+      },800);
+    },
     showModelSpread(id,item){
       this.showModal = true;
       this.spread = item;
       if( !this.spread.cover ){
         this.spread.cover = this.spread.pic?this.spread.pic[0]:'';
-      }
-      if( !this.spread.discount && this.spread.mark_price && this.spread.price ){
-        this.spread.discount = Number(this.spread.price / this.spread.mark_price * 10).toFixed(1);
-      }else if(!this.spread.discount){
-        this.spread.discount = 0;
-      }
-      if( this.spread.discount<=0 || this.spread.discount>=10 ){
-        this.spread.discount = 0;
       }
 
       this.url = this.spread.url;

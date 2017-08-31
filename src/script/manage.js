@@ -62,6 +62,15 @@ var app = new Vue({
       noCps:'check'
     },
   computed:{
+
+      discount:function () {
+        if( this.spread.mark_price && this.spread.price ){
+          this.spread.discount = Number(this.spread.price / this.spread.mark_price * 10).toFixed(1);
+        }else {
+          this.spread.discount = 0;
+        }
+        return this.spread.discount;
+      },
       erweima:function () {
         if(!this.url){
           return $.pluginsPath+'images/no.png';
@@ -113,6 +122,27 @@ var app = new Vue({
       }
   },
     methods:{
+      coverChange:function () {
+        var reader = new FileReader();
+        var _this = this;
+        reader.onload = function(e) {
+          _this.spread.cover = e.target.result;
+          _this.spread = {
+            ..._this.spread
+          };
+        };
+        reader.readAsDataURL( document.getElementById('model-spread-cover').files[0] );
+      },
+      keyup:function (name,e) {
+        this.timer && clearTimeout(this.timer);
+
+        this.timer = setTimeout(()=>{
+          this.spread[name] = $(e.srcElement).text();
+          this.spread = {
+            ...this.spread
+          };
+        },800);
+      },
         deleteItem:function (id,item) {
 
             var index = -1,data = this.list;
@@ -336,7 +366,11 @@ var app = new Vue({
     filterTime(addtime){
       var t = new Date(addtime);
       return t.getFullYear().toString().substr(2) + '-'+ (t.getMonth() + 1) + '-' + t.getDate() + ' ' + t.getHours() + ':' + t.getMinutes()
-    }
+    },
   }
 });
 
+
+function keyWordRed(title,keyword){
+  return title.replace(keyword,'<span class="spread-red">'+keyword+'</span>');
+}

@@ -92,6 +92,94 @@ function priceFn(string) {
 }
 
 var URL_CONFIG = [
+  {
+    mall:'天猫',
+    shop:'jutaobao',
+    host:['ju.taobao.com','detail.ju.taobao.com'],
+    logo:'http://cdn.jiguo.com/zdm/asset/mall/tmall.jpg',
+    hasInsertDom:function (_self) {
+      var p_obj = $(_self).closest('li.item-small-v3');
+      if( p_obj.length ){
+        return p_obj;
+      }
+      var p_obj = $(_self).closest('li.item-big-v2');
+      if( p_obj.length ){
+        return p_obj;
+      }
+      return null;
+    },
+    getItemData:function (_self) {
+      var obj = {};
+      var pic = [];
+      $(_self).find('.item-pic,.link-box').find('img').each(function () {
+        var p = $(this).attr('src');
+        if(p){
+          p = p.replace(/\.([a-z\d]{3})_\d+x\d+(q\d+|)\.jpg/ig,'.\$1');
+          pic.push( p );
+        }
+      });
+
+      obj.pic = pic;
+
+      if(_self.hasClass('item-big-v2')){
+        obj.title = trim($(_self).find('.shortname').text());
+        obj.url = $(_self).find('.link-box').attr('href');
+        obj.price = priceFn($(_self).find('.row-price .price .yen').text());
+        obj.mark_price = priceFn($(_self).find('.row-price .price .oriPrice').text());
+      }
+
+      if(_self.hasClass('item-small-v3')){
+        obj.title = trim($(_self).find('h4 .desc').text());
+        obj.url = $(_self).find('.link-box').attr('href');
+        obj.price = priceFn($(_self).find('.price .yen').text());
+        obj.mark_price = priceFn($(_self).find('.dock .orig-price').text());
+      }
+
+      return obj;
+    },
+    getDetailData:function () {
+
+      var title = trim(My$('.J_mainBox .title').first().text());
+      var price = priceFn(My$('.J_statusBanner .J_actPrice').first().text());
+      var mark_price = priceFn(My$('.J_statusBanner .originPrice').text());
+
+      var discount = '';
+      if(price && mark_price){
+        discount = (price/mark_price * 10).toFixed(1);
+        if(discount<=0 || discount>=10 )discount = '';
+      }
+      var pic = [];
+      var p = '';
+      My$('.thumbnails li img').each(function () {
+        p = (My$(this).attr('data-big') || My$(this).attr('src')||'').replace(/_\d+[a-z]\d+[a-z]+\d+\.jpg_\.webp$/i,'');
+        if(p.substr(0,2)=='//'){
+          p = 'http:'+p;
+        }
+        pic.push(p);
+      });
+
+      var detail = (My$('.infodetail').html()||'').replace(/^\s+|\s+$/g,'');
+      if ( !detail ) {
+        pic.forEach(function (item) {
+          detail += '<img src="'+item+'" />';
+        });
+      }
+      var url = (My$('.J_mainBox [data-miaoshaurl]').attr('data-miaoshaurl')||'').replace(/&root_refer=.*/gi,'');
+      if(url.substr(0,2)=='//'){
+        url = 'http:'+url;
+      }
+      return {
+        url: url || window.location.href,
+        title:title,
+        price:price,
+        mark_price:mark_price,
+        pic:pic,
+        cover:pic[0],
+        detail:detail,
+        discount:discount
+      };
+    }
+  },
     {
         mall:'天猫',
         shop:'tmall',
@@ -194,7 +282,7 @@ var URL_CONFIG = [
             return {
                 title:$(_self).find('.p-name a em').text(),
                 url:$(_self).find('.p-name a').attr('href'),
-                price:$(_self).find('.p-price strong').text(),
+                price:$(_self).find('.p-price .J_price').first().text(),
                 mark_price:'',
                 pic:pic,
             };
@@ -423,8 +511,8 @@ var URL_CONFIG = [
     {
         mall:'网易考拉',
         shop:'kaola',
-        host:'product',
-      logo:'http://cdn.jiguo.com/zdm/asset/mall/kaola.jpg',
+        host:['www.kaola.com'],
+        logo:'http://cdn.jiguo.com/zdm/asset/mall/kaola.jpg',
         hasInsertDom:function (_self) {
             var p_obj = $(_self).closest('li.goods');
             if( p_obj.length ){
@@ -705,8 +793,8 @@ var URL_CONFIG = [
     {
         mall:'网易严选',
         shop:'yanxuan',
-        host:'item',
-      logo:'http://cdn.jiguo.com/zdm/asset/mall/yanxuan.jpg',
+        host:['you.163.com'],
+        logo:'http://cdn.jiguo.com/zdm/asset/mall/yanxuan.jpg',
         hasInsertDom:function (_self) {
             var p_obj = $(_self).closest('li.item');
             if( p_obj.length ){
@@ -779,7 +867,7 @@ var URL_CONFIG = [
     {
         mall:'优集品',
         shop:'ujipin',
-        host:'goods',
+        host:'www.ujipin.com',
       logo:'http://cdn.jiguo.com/zdm/asset/mall/youjipin.jpg',
         hasInsertDom:function (_self) {
             var p_obj = $(_self).closest('dl');
@@ -941,7 +1029,7 @@ var URL_CONFIG = [
         mall:'优购',
         shop:'yougou',
         host:'www.yougou.com',
-      logo:'http://cdn.jiguo.com/zdm/asset/mall/yougou.jpg',
+        logo:'http://cdn.jiguo.com/zdm/asset/mall/yougou.jpg',
         hasInsertDom:function (_self) {
             var p_obj = $(_self).closest('div.srchlst-wrap');
             if( p_obj.length ){
@@ -1008,7 +1096,7 @@ var URL_CONFIG = [
     {
         mall: '亚马逊中国',
         shop: 'amazon',
-        host: 'www.amazon.cn',
+        host: ['www.amazon.com','www.amazon.cn'],
       logo:'http://cdn.jiguo.com/zdm/asset/mall/amazon.jpg',
         hasInsertDom: amazon.hasInsertDom,
         getItemData: amazon.getItemData,
@@ -1017,7 +1105,7 @@ var URL_CONFIG = [
     {
         mall: '亚马逊美国',
         shop: 'amazon',
-        host: 'www.amazon.com',
+        host: ['www.amazon.com','www.amazon.cn'],
       logo:'http://cdn.jiguo.com/zdm/asset/mall/amazon.jpg',
         hasInsertDom: amazon.hasInsertDom,
         getItemData: amazon.getItemData,

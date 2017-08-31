@@ -3,6 +3,9 @@ body{
 a{
     cursor: pointer;
 }
+.spread-red{
+    color: #f44336;
+}
 #app{
     box-sizing: border-box;
     margin-bottom: 50px;

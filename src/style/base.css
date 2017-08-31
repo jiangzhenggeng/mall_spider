@@ -48,7 +48,7 @@
     background-color: rgb(255, 255, 255);
     left: 0px;
     top: 0px;
-    z-index: 2147483647;
+    z-index: 99999;
     display: flex;
     box-shadow: rgba(0, 0, 0, 0.39) 1px 1px 5px 0px;
     align-items: stretch;
