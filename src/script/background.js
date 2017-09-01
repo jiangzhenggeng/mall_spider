@@ -43,6 +43,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
           if(!item.addtime) item.addtime = new Date().getTime();
           if(!item.updatetime) item.updatetime = new Date().getTime();
 
+          item.price = (item.price||'').replace(/\.0+$/g,'');
+          item.mark_price = (item.mark_price||'').replace(/\.0+$/g,'');
+
             return item;
         });
         var text = '';
@@ -64,6 +67,42 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
             result:'ok',
             text:text
         });
+
+
+        var item = message.data;
+        var r = $.post('http://zdm.jiguo.com/admin/Product/InsertProductDraft',{
+          catch_data:{
+            'name':item.title,
+            'detail':item.detail||'',
+            'pic':item.pic||[],
+            'cover':item.cover || item.pic[0],
+            'url':item.url,
+            'mall':item.mall,
+            'shop':item.shop,
+            'price':item.price,
+            'mark_price':item.mark_price,
+            'discount':item.discount,
+          }
+        },replayDate=>{
+          if(replayDate.resultCode==0 || replayDate.resultCode==-2){
+            var data = store.get('data') || [];
+            data.forEach(function (_item,_index) {
+              if(_item.id==id){
+                data[_index].included = 1;
+              }else if(!data[_index].included){
+                data[_index].included = 0;
+              }
+            });
+            store.set('data',data);
+            this.list_len = data.length + Math.random();
+            this.list = data;
+            $.alert('收录成功');
+
+          }else{
+            $.alert(replayDate.errorMsg || '收录失败');
+          }
+        },'json');
+
     }
 });
 

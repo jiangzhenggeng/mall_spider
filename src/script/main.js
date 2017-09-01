@@ -23,8 +23,9 @@ var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
                 />
             </div>
             <div class="spread-desc">
-                <div class="spread-tedian" contenteditable="true" @paste="paste($event)">
-                    <span class="spread-red">产品特点：</span><span>{{ spread.desc?spread.desc:(spread.title?spread.title:'填写商品特点') }}</span>
+                <div class="spread-tedian">
+                    <span class="spread-red" contenteditable="true" @paste="paste($event)">产品特点：</span>
+                    <span contenteditable="true" @paste="paste($event)">{{ spread.desc?spread.desc:(spread.title?spread.title:'填写商品特点') }}</span>
                 </div>
                 <div class="spread-erweima">
                     <div class="spread-bottom-left">
@@ -34,8 +35,8 @@ var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
                     <div class="spread-bottom-right">
                         <div class="spread-title" contenteditable="true" @paste="paste($event)">{{ spread.title?spread.title:'填写商品' }}</div>
                         <div class="spread-price">
-                            <span class="spread-red">现价:<span contenteditable="true" @paste="paste($event)" @keyup="keyup('price',$event)">{{ spread.price }}</span>元</span>
-                            <span class="spread-gray">原价:<span contenteditable="true" @paste="paste($event)" @keyup="keyup('mark_price',$event)">{{ spread.mark_price }}</span>元</span>
+                            <span class="spread-red">现价:<span contenteditable="true" @paste="paste($event)" @keyup="keyup('price',$event)">{{ spread.price | price }}</span>元</span>
+                            <span class="spread-gray">原价:<span contenteditable="true" @paste="paste($event)" @keyup="keyup('mark_price',$event)">{{ spread.mark_price | price }}</span>元</span>
                         </div>
                         <div class="spread-logo">
                             <img :src="spread.logo">
@@ -221,7 +222,7 @@ var app = new Vue({
     },
 
     mousedown(e){
-      this.moveImg = this.moveImg?this.moveImg:$(this.$refs['spread-cover']);
+      this.moveImg = $(this.$refs['spread-cover']);
 
       this.mouse.lock = true;
       this.mouse.start_x = e.clientX;
@@ -235,7 +236,7 @@ var app = new Vue({
 
         this.mouse.move_x = this.mouse.start_x - this.mouse.end_x;
         this.mouse.move_y = this.mouse.start_y - this.mouse.end_y;
-        //console.log( this.mouse.start_mgt ,-this.mouse.move_y );
+        // console.log(this.moveImg, this.mouse.start_mgt - this.mouse.move_y );
         this.moveImg.css('top', this.mouse.start_mgt - this.mouse.move_y );
       }
     },
@@ -246,6 +247,11 @@ var app = new Vue({
     },
     mouseout(e){
       this.mouseup(e);
+    }
+  },
+  filters:{
+    price:function (price) {
+      return (price||'').replace(/\.0+$/g,'');
     }
   }
 });
@@ -463,6 +469,9 @@ var app = new Vue({
     item_data.pic = item_data.pic.map(function (item) {
       return $.extendUrl(item);
     });
+
+    item_data.price = (item_data.price||'').replace(/\.0+$/g,'');
+    item_data.mark_price = (item_data.mark_price||'').replace(/\.0+$/g,'');
 
     _this.data('already-catch-data',item_data);
 

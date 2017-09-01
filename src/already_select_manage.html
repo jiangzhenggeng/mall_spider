@@ -156,8 +156,9 @@
                         />
                     </div>
                     <div class="spread-desc">
-                        <div class="spread-tedian" contenteditable="true" @paste="paste($event)">
-                            <span class="spread-red">产品特点：</span><span>{{ spread.desc?spread.desc:(spread.title?spread.title:'填写商品特点') }}</span>
+                        <div class="spread-tedian">
+                            <span class="spread-red" contenteditable="true" @paste="paste($event)">产品特点：</span>
+                            <span contenteditable="true" @paste="paste($event)">{{ spread.desc?spread.desc:(spread.title?spread.title:'填写商品特点') }}</span>
                         </div>
                         <div class="spread-erweima">
                             <div class="spread-bottom-left">
