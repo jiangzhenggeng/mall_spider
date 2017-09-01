@@ -22,9 +22,10 @@ function download(message) {
     var image = new Image();
     image.onload = function() {
       var canvas = document.createElement("canvas");
-      canvas.width = o_w_h.w * window.devicePixelRatio;
-      canvas.height = o_w_h.h * window.devicePixelRatio;
+      canvas.width = o_w_h.w;
+      canvas.height = o_w_h.h;
       var context = canvas.getContext("2d");
+      context.scale(1/window.devicePixelRatio,1/window.devicePixelRatio);
       context.drawImage(image,-(o_offset.left-scrollLeft) * window.devicePixelRatio,-(o_offset.top-scrollTop) * window.devicePixelRatio );
 
       var link = document.createElement('a');

@@ -349,7 +349,7 @@ var URL_CONFIG = [
         mall:'淘宝',
         shop:'taobao',
         host:['item.taobao.com','detail.tmall.com'],
-      logo:$.pluginsPath + 'images/logo/taobao.png',
+       logo:'http://cdn.jiguo.com/zdm/asset/mall/tmall.jpg',
         hasInsertDom:function (_self) {
             var p_obj = $(_self).closest('div.item');
             if( p_obj.length ){

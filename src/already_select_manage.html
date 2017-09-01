@@ -141,7 +141,7 @@
         <div slot="body" class="model-body-inner">
             <div class="spread-wrap">
                 <div ref="spread-download" class="spread">
-                    <div class="spread-header" contenteditable="true">每日大牌折扣</div>
+                    <div class="spread-header" contenteditable="true" @paste="paste($event)">每日大牌折扣</div>
                     <div class="spread-body">
                         <div class="spread-flage" v-if="discount>0 && discount<10">
                             <img :src="`${My$.pluginsPath}images/i-discount.png`">
@@ -156,19 +156,19 @@
                         />
                     </div>
                     <div class="spread-desc">
-                        <div class="spread-tedian" contenteditable="true">
+                        <div class="spread-tedian" contenteditable="true" @paste="paste($event)">
                             <span class="spread-red">产品特点：</span><span>{{ spread.desc?spread.desc:(spread.title?spread.title:'填写商品特点') }}</span>
                         </div>
                         <div class="spread-erweima">
                             <div class="spread-bottom-left">
                                 <img :src="erweima">
-                                <div contenteditable="true">长按二维码立即下单</div>
+                                <div contenteditable="true" @paste="paste($event)">长按二维码立即下单</div>
                             </div>
                             <div class="spread-bottom-right">
-                                <div class="spread-title" contenteditable="true">{{ spread.title?spread.title:'填写商品' }}</div>
+                                <div class="spread-title" contenteditable="true" @paste="paste($event)">{{ spread.title?spread.title:'填写商品' }}</div>
                                 <div class="spread-price">
-                                    <span class="spread-red">现价:<span contenteditable="true" @keyup="keyup('price',$event)">{{ spread.price }}</span>元</span>
-                                    <span class="spread-gray">原价:<span contenteditable="true" @keyup="keyup('mark_price',$event)">{{ spread.mark_price }}</span>元</span>
+                                    <span class="spread-red">现价:<span contenteditable="true" @paste="paste($event)" @keyup="keyup('price',$event)">{{ spread.price }}</span>元</span>
+                                    <span class="spread-gray">原价:<span contenteditable="true" @paste="paste($event)" @keyup="keyup('mark_price',$event)">{{ spread.mark_price }}</span>元</span>
                                 </div>
                                 <div class="spread-logo">
                                     <img :src="spread.logo">
@@ -181,7 +181,7 @@
             <div>
                 <div @click="download" type="button" class="spread-download-png">下载</div>
                 <div class="spread-download-png model-spread-cover-wrap">
-                    图片
+                    上传
                     <input id="model-spread-cover" @change="coverChange($event)" type="file" name="cover" class="model-spread-cover" accept="image/jpg,image/jpeg,image/png,image/gif">
                 </div>
             </div>

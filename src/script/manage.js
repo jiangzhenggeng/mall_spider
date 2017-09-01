@@ -1,4 +1,6 @@
 
+
+
 Vue.component('modal', {
   template: `<transition name="modal">
         <div class="modal-mask">
@@ -122,6 +124,13 @@ var app = new Vue({
       }
   },
     methods:{
+      paste:function (ev) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        let cbd = ev.clipboardData;
+        let text = cbd.getData('text/plain')||'';
+        document.execCommand('insertText', false, text );
+      },
       coverChange:function () {
         var reader = new FileReader();
         var _this = this;
@@ -208,6 +217,12 @@ var app = new Vue({
               this.list_len = data.length + Math.random();
               this.list = data;
               $.alert('收录成功');
+
+              var link = document.createElement('a');
+              link.href = 'http://zdm.jiguo.com/admin/product/CatchWriteEdit/id/'+replayDate.result+'.html';
+              link.target = '_blank';
+              link.click();
+
             }else{
               $.alert(replayDate.errorMsg || '收录失败');
             }
@@ -306,10 +321,13 @@ var app = new Vue({
           var image = new Image();
           image.onload = function() {
             var canvas = document.createElement("canvas");
-            canvas.width = o_w_h.w * window.devicePixelRatio;
-            canvas.height = o_w_h.h * window.devicePixelRatio;
+            canvas.width = o_w_h.w;
+            canvas.height = o_w_h.h;
             var context = canvas.getContext("2d");
-            context.drawImage(image,-(o_offset.left-$(window).scrollLeft()) * window.devicePixelRatio,-(o_offset.top-$(window).scrollTop()) * window.devicePixelRatio );
+
+            context.scale(1/window.devicePixelRatio,1/window.devicePixelRatio);
+
+            context.drawImage(image,-( o_offset.left - $(window).scrollLeft() ) * window.devicePixelRatio,-(o_offset.top-$(window).scrollTop()) * window.devicePixelRatio );
 
             var link = document.createElement('a');
             var time = new Date().getTime();
