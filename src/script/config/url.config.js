@@ -282,7 +282,7 @@ var URL_CONFIG = [
             return {
                 title:$(_self).find('.p-name a em').text(),
                 url:$(_self).find('.p-name a').attr('href'),
-                price:$(_self).find('.p-price .J_price').first().text(),
+                price:$(_self).find('.p-price .J_price').first().text() || $(_self).find('.p-price i').first().text(),
                 mark_price:'',
                 pic:pic,
             };

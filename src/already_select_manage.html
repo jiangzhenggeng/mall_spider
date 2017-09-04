@@ -24,11 +24,20 @@
                         <label class="control-label">电商</label>
                         <select  ref="shop" class="form-control">
                             <option value="">请选择</option>
+                            <option value="jutaobao">聚划算</option>
                             <option value="tmall">天猫</option>
-                            <option value="taobao">淘宝</option>
                             <option value="jd">京东</option>
-                            <option value="amazon">亚马逊</option>
+                            <option value="taobao">淘宝</option>
                             <option value="suning">苏宁</option>
+                            <option value="kaola">网易考拉</option>
+                            <option value="yhd">1号店</option>
+                            <option value="gome">国美</option>
+                            <option value="dangdang">当当</option>
+                            <option value="yanxuan">网易严选</option>
+                            <option value="ujipin">优集品</option>
+                            <option value="xiji">西集网</option>
+                            <option value="yougou">优购</option>
+                            <option value="amazon">亚马逊</option>
                         </select>
                     </div>
                     <button @click="searchKeyword" type="button" class="btn btn-default">搜索</button>
@@ -158,7 +167,7 @@
                     <div class="spread-desc">
                         <div class="spread-tedian">
                             <span class="spread-red" contenteditable="true" @paste="paste($event)">产品特点：</span>
-                            <span contenteditable="true" @paste="paste($event)">{{ spread.desc?spread.desc:(spread.title?spread.title:'填写商品特点') }}</span>
+                            <span contenteditable="true" @paste="paste($event)" @keyup="keyup('desc',$event)">{{ spread.desc?spread.desc:'填写商品特点' }}</span>
                         </div>
                         <div class="spread-erweima">
                             <div class="spread-bottom-left">
@@ -166,10 +175,10 @@
                                 <div contenteditable="true" @paste="paste($event)">长按二维码立即下单</div>
                             </div>
                             <div class="spread-bottom-right">
-                                <div class="spread-title" contenteditable="true" @paste="paste($event)">{{ spread.title?spread.title:'填写商品' }}</div>
+                                <div class="spread-title" contenteditable="true" @paste="paste($event)" @keyup="keyup('title',$event)">{{ spread.title?spread.title:'填写商品' }}</div>
                                 <div class="spread-price">
-                                    <span class="spread-red">现价:<span contenteditable="true" @paste="paste($event)" @keyup="keyup('price',$event)">{{ spread.price }}</span>元</span>
-                                    <span class="spread-gray">原价:<span contenteditable="true" @paste="paste($event)" @keyup="keyup('mark_price',$event)">{{ spread.mark_price }}</span>元</span>
+                                    <span class="spread-red"><span contenteditable="true" @paste="paste($event)">现价:</span><span contenteditable="true" @paste="paste($event)" @keyup="keyup('price',$event)">{{ spread.price }}</span>元</span>
+                                    <span class="spread-gray"><span contenteditable="true" @paste="paste($event)"> 原价:</span><span contenteditable="true" @paste="paste($event)" @keyup="keyup('mark_price',$event)">{{ spread.mark_price }}</span>元</span>
                                 </div>
                                 <div class="spread-logo">
                                     <img :src="spread.logo">

@@ -25,7 +25,7 @@ var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
             <div class="spread-desc">
                 <div class="spread-tedian">
                     <span class="spread-red" contenteditable="true" @paste="paste($event)">产品特点：</span>
-                    <span contenteditable="true" @paste="paste($event)">{{ spread.desc?spread.desc:(spread.title?spread.title:'填写商品特点') }}</span>
+                    <span contenteditable="true" @paste="paste($event)" @keyup="keyup('desc',$event)">{{ spread.desc?spread.desc:'填写商品特点' }}</span>
                 </div>
                 <div class="spread-erweima">
                     <div class="spread-bottom-left">
@@ -33,10 +33,10 @@ var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
                         <div contenteditable="true" @paste="paste($event)">长按二维码立即下单</div>
                     </div>
                     <div class="spread-bottom-right">
-                        <div class="spread-title" contenteditable="true" @paste="paste($event)">{{ spread.title?spread.title:'填写商品' }}</div>
+                        <div class="spread-title" contenteditable="true" @paste="paste($event)" @keyup="keyup('title',$event)">{{ spread.title?spread.title:'填写商品' }}</div>
                         <div class="spread-price">
-                            <span class="spread-red">现价:<span contenteditable="true" @paste="paste($event)" @keyup="keyup('price',$event)">{{ spread.price | price }}</span>元</span>
-                            <span class="spread-gray">原价:<span contenteditable="true" @paste="paste($event)" @keyup="keyup('mark_price',$event)">{{ spread.mark_price | price }}</span>元</span>
+                            <span class="spread-red"><span contenteditable="true" @paste="paste($event)">现价:</span><span contenteditable="true" @paste="paste($event)" @keyup="keyup('price',$event)">{{ spread.price | price }}</span>元</span>
+                            <span class="spread-gray"><span contenteditable="true" @paste="paste($event)"> 原价:</span><span contenteditable="true" @paste="paste($event)" @keyup="keyup('mark_price',$event)">{{ spread.mark_price | price }}</span>元</span>
                         </div>
                         <div class="spread-logo">
                             <img :src="spread.logo">
@@ -75,6 +75,7 @@ var app = new Vue({
     url:'',
     mouse:{},
     moveImg:null,
+	  noCps:'check'
   },
   computed:{
     erweima:function () {
@@ -115,6 +116,17 @@ var app = new Vue({
         _this.spread = {
           ..._this.spread
         };
+
+        console.log( _this.spread );
+
+	      chrome.runtime.sendMessage({
+		      type:'upload-cover',
+		      data:{
+		          id:_this.spread.id,
+                  cover:_this.spread.cover
+              }
+	      });
+
       };
       reader.readAsDataURL( document.getElementById('model-spread-cover').files[0] );
     },
@@ -126,7 +138,7 @@ var app = new Vue({
         this.spread = {
           ...this.spread
         };
-      },800);
+      },1000);
     },
     showModelSpread(id,item){
       this.showModal = true;
@@ -152,34 +164,6 @@ var app = new Vue({
           this.noCps = 'ok-cps';
           this.url = replayDate;
         }
-
-        return new Promise((resolve, reject)=>{
-
-          var pic = {
-            type:5,
-            caption:'每日大牌折扣',
-            url:this.spread.url,
-            title:this.spread.title,
-            price:this.spread.price,
-            price2:this.spread.mark_price,
-            description:'',
-            cover:this.spread.cover,
-            'cover-mall':this.spread.logo
-          };
-
-          chrome.runtime.sendMessage({
-            type:'get-save-card-data',
-            pic:pic,
-            discount:this.spread.discount
-          });
-
-          window.bindMessage['get-save-card-data-replay'] = resolve;
-
-        });
-      }).then( replayDate =>{
-        if(replayDate.status==0){
-          this.url = replayDate.short_url;
-        }
       });
 
     },
@@ -191,34 +175,69 @@ var app = new Vue({
       }
     },
     downLoad(){
-      //触发截图
-      chrome.runtime.sendMessage({
-        type:'get-bcActiveTab',
-        data:this.link_next_data,
-        info:{
-          offsetLeft: $(app.$refs['spread-download']).offset().left,
-          offsetTop: $(app.$refs['spread-download']).offset().top,
-          height: $(app.$refs['spread-download']).height(),
-          width: $(app.$refs['spread-download']).width(),
-          scrollTop:$(window).scrollTop(),
-          scrollLeft:$(window).scrollLeft()
-        }
-      }, response => {
-        if( this.triggerObj ){
-          if(response.result=='ok'){
-            this.triggerObj.addClass('my-spider-link-success').html('传播图生成成功');
-            this.showModal = false;
+	    new Promise((resolve, reject)=>{
 
-            var detail = $('.my-spider-detail');
-            if(detail.length){
-              detail.show();
-            }
+		    var pic = {
+			    type:5,
+			    caption:'每日大牌折扣',
+			    url:this.spread.url,
+			    title:this.spread.title,
+			    price:this.spread.price,
+			    price2:this.spread.mark_price,
+			    description:this.spread.desc||'',
+			    cover:this.spread.cover,
+			    'cover-mall':this.spread.logo
+		    };
 
-          }else{
-            this.triggerObj.addClass('my-spider-link-error').html('传播图生成失败');
-          }
-        }
-      });
+		    chrome.runtime.sendMessage({
+			    type:'get-save-card-data',
+			    pic:pic,
+			    discount:this.spread.discount
+		    });
+
+		    chrome.runtime.sendMessage({
+			    type:'get-item-html',
+			    data:this.spread
+		    });
+
+		    window.bindMessage['get-save-card-data-replay'] = resolve;
+
+	    }).then( replayDate =>{
+		    if(replayDate.status==0){
+			    this.url = replayDate.short_url;
+		    }
+	    }).then(()=>{
+		   setTimeout(()=>{
+			   //触发截图
+			   chrome.runtime.sendMessage({
+				   type:'get-bcActiveTab',
+				   data:this.link_next_data,
+				   info:{
+					   offsetLeft: $(app.$refs['spread-download']).offset().left,
+					   offsetTop: $(app.$refs['spread-download']).offset().top,
+					   height: $(app.$refs['spread-download']).height(),
+					   width: $(app.$refs['spread-download']).width(),
+					   scrollTop:$(window).scrollTop(),
+					   scrollLeft:$(window).scrollLeft()
+				   }
+			   }, response => {
+				   if( this.triggerObj ){
+					   if(response.result=='ok'){
+						   this.triggerObj.addClass('my-spider-link-success').html('传播图生成成功');
+						   this.showModal = false;
+
+						   var detail = $('.my-spider-detail');
+						   if(detail.length){
+							   detail.show();
+						   }
+
+					   }else{
+						   this.triggerObj.addClass('my-spider-link-error').html('传播图生成失败');
+					   }
+				   }
+			   });
+           },200)
+        });
     },
 
     mousedown(e){
@@ -251,7 +270,8 @@ var app = new Vue({
   },
   filters:{
     price:function (price) {
-      return (price||'').replace(/\.0+$/g,'');
+      price = (price||'').replace(/\.0+$/g,'');
+      return price?price:'--.--';
     }
   }
 });
@@ -363,6 +383,7 @@ var app = new Vue({
         item_data.pic = item_data.pic.map(function (item) {
             return $.extendUrl(item);
         });
+	    item_data.id = createId();
 
         _this.data('already-catch-data',item_data);
 
@@ -473,6 +494,8 @@ var app = new Vue({
     item_data.price = (item_data.price||'').replace(/\.0+$/g,'');
     item_data.mark_price = (item_data.mark_price||'').replace(/\.0+$/g,'');
 
+	  item_data.id = createId();
+
     _this.data('already-catch-data',item_data);
 
     chrome.runtime.sendMessage({
@@ -533,6 +556,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
 
   }else if( message.type=='set-store' ){
     window.storeData = message.storeData || [];
+  }
+  else if( message.type=='upload-cover-replay' ){
+	  app.spread.cover = message.cover;
+	  console.log( app.spread );
   }
 
 });

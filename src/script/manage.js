@@ -131,6 +131,27 @@ var app = new Vue({
         let text = cbd.getData('text/plain')||'';
         document.execCommand('insertText', false, text );
       },
+      up(fileList,callback){
+	      callback = callback || $.noop();
+
+          var fileList = fileList.files[0];
+          var data = new FormData();
+	      var xhr = new XMLHttpRequest();
+
+          data.append('file',fileList );
+          xhr.open('POST','http://zdm.jiguo.com/admin/ajax/RepairUpload');
+          xhr.send(data);
+          xhr.onreadystatechange=function(){
+              if(4==xhr.readyState){
+                  if(200==xhr.status){
+                      var replyData = JSON.parse( xhr.responseText );
+	                  callback(replyData);
+	                  return;
+                  }
+	              callback();
+              }
+          }
+      },
       coverChange:function () {
         var reader = new FileReader();
         var _this = this;
@@ -139,6 +160,21 @@ var app = new Vue({
           _this.spread = {
             ..._this.spread
           };
+          _this.up( document.querySelector('#model-spread-cover'),(function (id) {
+
+            return function (replyData) {
+                if(!replyData) return;
+	            var data = store.get('data');
+	            data = data.map( (_item,_index) => {
+		            if(_item.id==id){
+			            _item.cover = replyData.result.url;
+		            }
+		            return _item;
+	            });
+	            store.set('data',data);
+            }
+
+          })(_this.spread.id));
         };
         reader.readAsDataURL( document.getElementById('model-spread-cover').files[0] );
       },
@@ -146,10 +182,20 @@ var app = new Vue({
         this.timer && clearTimeout(this.timer);
 
         this.timer = setTimeout(()=>{
-          this.spread[name] = $(e.srcElement).text();
-          this.spread = {
-            ...this.spread
-          };
+            this.spread[name] = $(e.srcElement).text();
+            this.spread = {
+              ...this.spread
+            };
+
+	        var data = store.get('data');
+	        data = data.map( (_item,_index) => {
+		        if(_item.id==this.spread.id){
+			        _item = this.spread;
+		        }
+		        return _item;
+	        });
+	        store.set('data',data);
+
         },800);
       },
         deleteItem:function (id,item) {
@@ -272,30 +318,6 @@ var app = new Vue({
               }
             });
 
-          }).then( _ =>{
-            return new Promise((resolve, reject)=>{
-              var pic = {
-                type:5,
-                caption:'每日大牌折扣',
-                url:this.spread.url,
-                title:this.spread.title,
-                price:this.spread.price,
-                price2:this.spread.mark_price,
-                description:'',
-                cover:this.spread.cover,
-                'cover-mall':this.spread.logo
-              };
-              $.post('http://zdm.jiguo.com/admin/index/InsertPic',{
-                pic:pic,
-                discount:this.spread.discount
-              },replayDate=>{
-                if(replayDate.status==0){
-                  this.url = replayDate.short_url;
-                }
-                resolve();
-              },'json');
-
-            });
           });
 
         },
@@ -314,32 +336,56 @@ var app = new Vue({
             w:$(this.$refs['spread-download']).width()
         };
 
-        chrome.tabs.captureVisibleTab(null, {
-          format : "png",
-          quality : 100
-        }, function(data) {
-          var image = new Image();
-          image.onload = function() {
-            var canvas = document.createElement("canvas");
-            canvas.width = o_w_h.w;
-            canvas.height = o_w_h.h;
-            var context = canvas.getContext("2d");
+        var pic = {
+            type:5,
+            caption:'每日大牌折扣',
+            url:this.spread.url,
+            title:this.spread.title,
+            price:this.spread.price,
+            price2:this.spread.mark_price,
+            description:this.spread.desc||'',
+            cover:this.spread.cover,
+            'cover-mall':this.spread.logo
+        };
+        $.post('http://zdm.jiguo.com/admin/index/InsertPic',{
+            pic:pic,
+            discount:this.spread.discount
+        },replayDate=>{
+            if(replayDate.status==0){
+                this.url = replayDate.short_url;
 
-            context.scale(1/window.devicePixelRatio,1/window.devicePixelRatio);
+                this.$nextTick(()=>{
+	                setTimeout(()=>{
+		                chrome.tabs.captureVisibleTab(null, {
+			                format : "png",
+			                quality : 100
+		                }, function(data) {
+			                var image = new Image();
+			                image.onload = function() {
+				                var canvas = document.createElement("canvas");
+				                canvas.width = o_w_h.w;
+				                canvas.height = o_w_h.h;
+				                var context = canvas.getContext("2d");
 
-            context.drawImage(image,-( o_offset.left - $(window).scrollLeft() ) * window.devicePixelRatio,-(o_offset.top-$(window).scrollTop()) * window.devicePixelRatio );
+				                context.scale(1/window.devicePixelRatio,1/window.devicePixelRatio);
 
-            var link = document.createElement('a');
-            var time = new Date().getTime();
-            link.download = "spread-"+time+".png";
-            link.href = canvas.toDataURL();
-            link.click();
-            setTimeout(()=>{
-              _this.showModal = false;
-            })
-          };
-          image.src = data;
-        });
+				                context.drawImage(image,-( o_offset.left - $(window).scrollLeft() ) * window.devicePixelRatio,-(o_offset.top-$(window).scrollTop()) * window.devicePixelRatio );
+
+				                var link = document.createElement('a');
+				                var time = new Date().getTime();
+				                link.download = "spread-"+time+".png";
+				                link.href = canvas.toDataURL();
+				                link.click();
+				                setTimeout(()=>{
+					                _this.showModal = false;
+				                })
+			                };
+			                image.src = data;
+		                });
+                    },200);
+                });
+            }
+        },'json');
       },
       //价格排序
       sortPrice(){

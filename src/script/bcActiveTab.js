@@ -129,8 +129,54 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
     sendResponse({
       storeData:store.get('data')
     });
+  }else if( message.type=='upload-cover' ){//上传封面
+
+	  var imageData = message.data.cover.replace("image/jpeg",'image/octet-stream'),
+		  filename = new Date().getDate()+String(Math.random()).replace('0.','')+'.png';
+
+	  var fd = new FormData();
+
+	  var xhr = new XMLHttpRequest();
+	  fd.append('file', dataURItoBlob(imageData) ,filename);
+
+	  xhr.open('POST','http://zdm.jiguo.com/admin/ajax/RepairUpload');
+	  xhr.send(fd);
+	  xhr.onreadystatechange=function(){
+		  if(4==xhr.readyState){
+			  if(200==xhr.status){
+				  var replyData = JSON.parse( xhr.responseText );
+
+				  var data = store.get('data');
+				  data = data.map( (_item,_index) => {
+					  if( _item.id == message.data.id ){
+						  _item.cover = replyData.result.url;
+					  }
+					  return _item;
+				  });
+				  store.set('data',data);
+
+				  sendMessageToContentScript({
+					  type:message.type+'-replay',
+					  cover:replyData.result.url
+				  });
+			  }
+		  }
+	  }
+
   }
 
 });
+
+
+function dataURItoBlob(dataURI) {
+	var byteString = atob(dataURI.split(',')[1]);
+	var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+	var ab = new ArrayBuffer(byteString.length);
+	var ia = new Uint8Array(ab);
+	for (var i = 0; i < byteString.length; i++) {
+		ia[i] = byteString.charCodeAt(i);
+	}
+	return new Blob([ab], {type: mimeString});
+}
 
 

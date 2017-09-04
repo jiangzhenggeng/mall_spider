@@ -6,7 +6,6 @@ function createId() {
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
     //采集事件
     if(message.type=='get-item-html'){
-        message.data.id = createId();
         var data = store.get('data')||[], hasArray = false;
         data.map(function (item) {
             if(
@@ -24,9 +23,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
               if( message.data.cover ){
                 item.cover = message.data.cover;
               }
-              if( message.data.discount ){
-                item.discount = message.data.discount;
-              }
               if( message.data.price ){
                 item.price = message.data.price;
               }
@@ -35,6 +31,12 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
               }
 
               item.updatetime = new Date().getTime();
+
+	            if( item.price && item.mark_price  && item.price<item.mark_price){
+		            item.discount = Number(item.price / item.mark_price * 10 ).toFixed(1);
+	            }else{
+		            item.discount = 0;
+                }
 
             }
             if(!item.id) item.id = createId();
@@ -87,7 +89,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
           if(replayDate.resultCode==0 || replayDate.resultCode==-2){
             var data = store.get('data') || [];
             data.forEach(function (_item,_index) {
-              if(_item.id==id){
+              if(_item.id==message.data.id){
                 data[_index].included = 1;
               }else if(!data[_index].included){
                 data[_index].included = 0;
