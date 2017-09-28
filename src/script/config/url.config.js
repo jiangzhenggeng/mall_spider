@@ -265,7 +265,7 @@ var URL_CONFIG = [
 
             var picFn = function (p) {
               if(p.substr(0,2)=='//') p = 'http:'+p;
-              p = p.replace(/(\/n\d+\/jfs\/|\/n\d+\/[a-z]\d+[a-z]\d+_jfs\/)/ig,'/n1/s800x1026_jfs/');
+              p = p.replace(/(\/n\d+\/jfs\/|\/n\d+\/[a-z]\d+[a-z]\d+_jfs\/)/ig,'/imgzone/jfs/');
 
               return p;
             };
@@ -302,13 +302,13 @@ var URL_CONFIG = [
             My$('#spec-list li img').each(function () {
               var p = '';
               if(My$(this).attr('data-url')){
-                p = 'https://img14.360buyimg.com/n0/'+My$(this).attr('data-url');
+                p = 'https://img14.360buyimg.com/imgzone/'+My$(this).attr('data-url');
               }else{
                 p = My$(this).attr('src');
                 if(p.substr(0,2)=='//'){
                   p = 'http:'+p;
                 }
-                p = p.replace(/(\/n\d+\/jfs\/|\/n\d+\/[a-z]\d+[a-z]\d+_jfs\/)/ig,'/n0/jfs/').replace(/\/\d+_jfs\//i,'/jfs/');
+                p = p.replace(/(\/n\d+\/jfs\/|\/n\d+\/[a-z]\d+[a-z]\d+_jfs\/)/ig,'/imgzone/jfs/').replace(/\/\d+_jfs\//i,'/jfs/');
               }
               pic.push(p);
             });
