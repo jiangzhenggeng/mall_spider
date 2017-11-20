@@ -36,7 +36,7 @@ var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
                         <div class="spread-title" contenteditable="true" @paste="paste($event)" @keyup="keyup('title',$event)">{{ spread.title?spread.title:'填写商品' }}</div>
                         <div class="spread-price">
                             <span class="spread-red"><span contenteditable="true" @paste="paste($event)">现价:</span><span contenteditable="true" @paste="paste($event)" @keyup="keyup('price',$event)">{{ spread.price | price }}</span>元</span>
-                            <span class="spread-gray"><span contenteditable="true" @paste="paste($event)"> 原价:</span><span contenteditable="true" @paste="paste($event)" @keyup="keyup('mark_price',$event)">{{ spread.mark_price | price }}</span>元</span>
+                            <span class="spread-gray"><span contenteditable="true" @paste="paste($event)"> 原价:</span><span contenteditable="true" @paste="paste($event)" @keyup="keyup('mark_price',$event)">{{ spread.mark_price | price }}元</span></span>
                         </div>
                         <div class="spread-logo">
                             <img :src="spread.logo">
