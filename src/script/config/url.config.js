@@ -1110,7 +1110,75 @@ var URL_CONFIG = [
         hasInsertDom: amazon.hasInsertDom,
         getItemData: amazon.getItemData,
       getDetailData: amazon.getDetailData,
-    }
+    },
+	{
+		mall: '极果优品',
+		shop: 'youzan',
+		host: ['detail.youzan.com'],
+		logo:'http://s1.jiguo.com/c83c2b09-0a6f-4a54-970a-fb2c6ab49e18',
+		hasInsertDom:function (_self) {
+			var p_obj = $(_self).closest('.goods-list li');
+			if( p_obj.length ){
+				return p_obj;
+			}
+			return null;
+		},
+		getItemData:function (_self) {
+			var pic = [];
+			$(_self).find('.image').find('img').each(function () {
+				var p = $(this).attr('src');
+				if(p.substr(0,2)=='//') p = 'http:'+p;
+				p = p.replace(/\?.+/,'');
+				pic.push(p);
+			});
+			return {
+				title:$(_self).find('.title').text(),
+				url:$(_self).find('a').first().attr('href'),
+				price:$(_self).find('.price').text(),
+				mark_price:$(_self).find('.mark_price').text(),
+				pic:pic,
+			};
+		},
+		getDetailData(){
+			var title = trim(My$('.goods-title').text() );
+
+			var price = priceFn(My$('.goods-price .goods-current-price').text() );
+			var mark_price = priceFn(My$('.goods-price .goods-origin-old-price').text() );
+
+			var discount = '';
+			if(price && mark_price){
+				discount = (price/mark_price * 10).toFixed(1);
+				if(discount<=0 || discount>=10 )discount = '';
+			}
+			var pic = [];
+			My$('.swiper-image').find('img').each(function () {
+				var p = My$(this).attr('src');
+				if(p.substr(0,2)=='//'){
+					p = 'http:'+p;
+				}
+				p = p.replace(/\?.+/,'');
+				pic.push(p);
+			});
+
+			var detail = (My$('.rich-text').html()||'').replace(/^\s+|\s+$/g,'');
+			if ( !detail ) {
+				pic.forEach(function (item) {
+					detail += '<img src="'+item+'" />';
+				});
+			}
+
+			return {
+				title:title,
+				price:price ,
+				mark_price:mark_price ,
+				pic:pic,
+				cover:pic[0],
+				detail:detail,
+				discount:discount,
+				url:window.location.href
+			};
+		}
+	}
 ];
 
 

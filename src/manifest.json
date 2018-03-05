@@ -47,7 +47,8 @@
                 "*://*.163.com/*",
                 "*://*.ujipin.com/*",
                 "*://*.xiji.com/*",
-                "*://*.yougou.com/*"
+                "*://*.yougou.com/*",
+                "*://*.youzan.com/*"
             ],
             "js": [
                 "script/libs/vue.min.js",
