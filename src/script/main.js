@@ -24,8 +24,8 @@ var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
             </div>
             <div class="spread-desc">
                 <div class="spread-tedian">
-                    <span class="spread-red" contenteditable="true" @paste="paste($event)">产品特点：</span>
-                    <span contenteditable="true" @paste="paste($event)" @keyup="keyup('desc',$event)">{{ spread.desc?spread.desc:'填写商品特点' }}</span>
+                    <span class="spread-red" contenteditable="true">产品特点：</span>
+                    <span contenteditable="true">{{ spread.desc?spread.desc:'填写商品特点' }}</span>
                 </div>
                 <div class="spread-erweima">
                     <div class="spread-bottom-left">
@@ -33,7 +33,7 @@ var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
                         <div contenteditable="true" @paste="paste($event)">长按二维码立即下单</div>
                     </div>
                     <div class="spread-bottom-right">
-                        <div class="spread-title" contenteditable="true" @paste="paste($event)" @keyup="keyup('title',$event)">{{ spread.title?spread.title:'填写商品' }}</div>
+                        <div class="spread-title" contenteditable="true">{{ spread.title?spread.title:'填写商品' }}</div>
                         <div class="spread-price">
                             <span class="spread-red"><span contenteditable="true" @paste="paste($event)">现价:</span><span contenteditable="true" @paste="paste($event)" @keyup="keyup('price',$event)">{{ spread.price | price }}</span>元</span>
                             <span class="spread-gray"><span contenteditable="true" @paste="paste($event)"> 原价:</span><span contenteditable="true" @paste="paste($event)" @keyup="keyup('mark_price',$event)">{{ spread.mark_price | price }}</span><span contenteditable="true">元</span></span>

@@ -511,7 +511,7 @@ var URL_CONFIG = [
     {
         mall:'网易考拉',
         shop:'kaola',
-        host:['www.kaola.com'],
+        host:['www.kaola.com','goods.kaola.com'],
         logo:'http://cdn.jiguo.com/zdm/asset/mall/kaola.jpg',
         hasInsertDom:function (_self) {
             var p_obj = $(_self).closest('li.goods');
