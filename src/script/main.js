@@ -6,7 +6,7 @@ function createId() {
   return 'id-'+(Math.random().toString().replace('.',''));
 }
 
-var tpl = `<div v-if="showModal" class="spread-wrap" data-front>
+var tpl = `<div v-if="showModal" class="spread-wrap" data-front spellcheck="false">
         <div ref="spread-download" class="spread">
             <div class="spread-header" contenteditable="true" @paste="paste($event)">每日大牌折扣</div>
             <div class="spread-body">
